@@ -64,7 +64,7 @@ export async function generateImage(params: GenerateImageParams): Promise<Genera
     throw new Error(`Gemini API error ${response!.status}: ${errorText}`);
   }
 
-  const data = (await response.json()) as any;
+  const data = (await response!.json()) as any;
 
   // Find the image part in the response
   const candidates = data.candidates;
