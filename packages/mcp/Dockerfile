@@ -19,6 +19,7 @@ COPY --from=builder /app/node_modules ./node_modules
 
 ENV NODE_ENV=production
 ENV API_URL=http://api:3001
+ENV API_TOKEN=instapost_service_2026
 
 # External config from Coolify build args
 ARG MCP_AUTH_TOKEN

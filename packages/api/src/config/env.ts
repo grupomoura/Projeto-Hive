@@ -32,6 +32,7 @@ const envSchema = z.object({
   JWT_EXPIRES_IN: z.string().default('7d'),
 
   MCP_AUTH_TOKEN: z.string().optional(),
+  INTERNAL_SERVICE_TOKEN: z.string().optional(),
   FRONTEND_URL: z.string().default('http://localhost:3000'),
 });
 

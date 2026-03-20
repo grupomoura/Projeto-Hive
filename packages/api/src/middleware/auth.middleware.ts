@@ -14,6 +14,14 @@ export function authMiddleware(req: AuthRequest, res: Response, next: NextFuncti
   }
 
   const token = header.slice(7);
+
+  // Internal service token (bot, MCP)
+  if (env.INTERNAL_SERVICE_TOKEN && token === env.INTERNAL_SERVICE_TOKEN) {
+    req.userId = 'service';
+    next();
+    return;
+  }
+
   try {
     const payload = jwt.verify(token, env.JWT_SECRET) as { userId: string };
     req.userId = payload.userId;

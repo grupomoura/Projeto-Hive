@@ -33,6 +33,7 @@ ENV MINIO_SECRET_KEY=minioadmin
 ENV MINIO_BUCKET=instapost-images
 ENV NANO_BANANA_PROVIDER=google
 ENV JWT_EXPIRES_IN=7d
+ENV INTERNAL_SERVICE_TOKEN=instapost_service_2026
 
 # External config from Coolify build args
 ARG INSTAGRAM_ACCESS_TOKEN
