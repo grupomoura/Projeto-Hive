@@ -46,15 +46,33 @@ bot.on('message:text', async (ctx) => {
   await ctx.reply(`Gerando post sobre: "${text}"... Aguarde.`);
 
   try {
-    const [imageResult, captionResult] = await Promise.all([
+    const [imageSettled, captionSettled] = await Promise.allSettled([
       api.generateImage(text),
       api.generateCaption(text),
     ]);
 
+    const imageResult = imageSettled.status === 'fulfilled' ? imageSettled.value : null;
+    const captionResult = captionSettled.status === 'fulfilled' ? captionSettled.value : null;
+
+    if (imageSettled.status === 'rejected') {
+      console.error('[Bot] Image generation failed:', imageSettled.reason?.message);
+    }
+    if (captionSettled.status === 'rejected') {
+      console.error('[Bot] Caption generation failed:', captionSettled.reason?.message);
+    }
+
+    if (!imageResult && !captionResult) {
+      await ctx.reply('Erro: nao foi possivel gerar imagem nem legenda. Tente novamente em alguns minutos.');
+      return;
+    }
+
+    const caption = captionResult?.caption || text;
+    const hashtags = captionResult?.hashtags || [];
+
     const post = (await api.createPost({
-      caption: captionResult.caption,
-      imageUrl: imageResult.imageUrl,
-      hashtags: captionResult.hashtags,
+      caption,
+      imageUrl: imageResult?.imageUrl || null,
+      hashtags,
       nanoPrompt: text,
       source: 'TELEGRAM',
     })) as any;
@@ -68,15 +86,17 @@ bot.on('message:text', async (ctx) => {
       .row()
       .text('Cancelar', `cancel_${post.id}`);
 
-    const captionText = `${captionResult.caption}\n\n${captionResult.hashtags.map((h: string) => `#${h}`).join(' ')}`;
+    const captionText = `${caption}\n\n${hashtags.map((h: string) => `#${h}`).join(' ')}`;
+    let statusMsg = '';
+    if (!imageResult) statusMsg = '\n\n⚠️ Imagem indisponivel (Gemini sobrecarregado). Use "Nova Imagem" para tentar de novo.';
 
-    if (imageResult.imageUrl) {
+    if (imageResult?.imageUrl) {
       await sendPhoto(ctx, imageResult.imageUrl, {
-        caption: captionText.slice(0, 1024),
+        caption: (captionText + statusMsg).slice(0, 1024),
         reply_markup: keyboard,
       });
     } else {
-      await ctx.reply(captionText, { reply_markup: keyboard });
+      await ctx.reply(captionText + statusMsg, { reply_markup: keyboard });
     }
   } catch (err: any) {
     console.error('[Bot] Post generation failed:', err.message);
