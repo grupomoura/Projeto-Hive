@@ -29,6 +29,10 @@ function mapAspectRatio(ratio?: string): string {
 }
 
 export async function generateImage(params: GenerateImageParams): Promise<GenerateImageResult> {
+  if (!env.NANO_BANANA_API_KEY) {
+    throw new Error('NANO_BANANA_API_KEY not configured - set it in environment variables');
+  }
+
   const enrichedPrompt = enrichPrompt(params.prompt, params.style);
   const model = 'gemini-3.1-flash-image-preview';
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${env.NANO_BANANA_API_KEY}`;
@@ -78,6 +82,18 @@ export async function generateImage(params: GenerateImageParams): Promise<Genera
   const ext = imagePart.inlineData.mimeType === 'image/jpeg' ? 'jpg' : 'png';
   const contentType = imagePart.inlineData.mimeType;
   const key = `posts/${Date.now()}-${randomUUID()}.${ext}`;
+
+  // Ensure bucket exists before uploading
+  const bucketExists = await minioClient.bucketExists(env.MINIO_BUCKET);
+  if (!bucketExists) {
+    await minioClient.makeBucket(env.MINIO_BUCKET);
+    const policy = {
+      Version: '2012-10-17',
+      Statement: [{ Effect: 'Allow', Principal: { AWS: ['*'] }, Action: ['s3:GetObject'], Resource: [`arn:aws:s3:::${env.MINIO_BUCKET}/*`] }],
+    };
+    await minioClient.setBucketPolicy(env.MINIO_BUCKET, JSON.stringify(policy));
+  }
+
   await minioClient.putObject(env.MINIO_BUCKET, key, imageBuffer, imageBuffer.length, {
     'Content-Type': contentType,
   });

@@ -32,8 +32,8 @@ export default function NewPost() {
     try {
       const result = await api.generateImage(prompt, aspectRatio);
       setImageUrl(result.imageUrl);
-    } catch {
-      setMessage('Erro ao gerar imagem');
+    } catch (err: any) {
+      setMessage(err.message || 'Erro ao gerar imagem');
       setMessageType('error');
     }
     setGenLoading(false);
@@ -46,8 +46,8 @@ export default function NewPost() {
       const result = await api.generateCaption(prompt);
       setCaption(result.caption);
       setHashtags(result.hashtags.join(', '));
-    } catch {
-      setMessage('Erro ao gerar legenda');
+    } catch (err: any) {
+      setMessage(err.message || 'Erro ao gerar legenda');
       setMessageType('error');
     }
     setGenLoading(false);
