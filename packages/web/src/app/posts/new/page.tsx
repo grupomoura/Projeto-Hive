@@ -232,16 +232,18 @@ export default function NewPost() {
               </div>
 
               {/* Image */}
-              <div className={`${previewAspect} max-h-[500px] bg-bg-main flex items-center justify-center`}>
-                {imageUrl ? (
+              {imageUrl ? (
+                <div className={`${previewAspect} max-h-[500px] bg-bg-main flex items-center justify-center overflow-hidden`}>
                   <img src={imageUrl} alt="Preview" className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity" onClick={() => setShowFullImage(true)} />
-                ) : (
+                </div>
+              ) : (
+                <div className="py-16 bg-bg-main flex items-center justify-center">
                   <div className="flex flex-col items-center gap-2 text-text-muted">
                     <ImageIcon className="w-10 h-10" strokeWidth={1} />
                     <span className="text-xs">Imagem aparecera aqui</span>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
 
               {/* Instagram Actions */}
               <div className="px-4 py-3 flex gap-4">
