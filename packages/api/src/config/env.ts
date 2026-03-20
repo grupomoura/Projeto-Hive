@@ -11,6 +11,9 @@ const envSchema = z.object({
   INSTAGRAM_ACCESS_TOKEN: z.string().optional(),
   INSTAGRAM_USER_ID: z.string().optional(),
 
+  FACEBOOK_APP_ID: z.string().optional(),
+  FACEBOOK_APP_SECRET: z.string().optional(),
+
   NANO_BANANA_API_KEY: z.string().optional(),
   NANO_BANANA_PROVIDER: z.enum(['google', 'nanobananaapi', 'fal']).default('google'),
 

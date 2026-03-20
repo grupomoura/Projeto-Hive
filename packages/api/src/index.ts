@@ -68,21 +68,43 @@ app.get('/api/instagram/status', (_req, res) => {
   res.json({ success: true, data: { connected: configured } });
 });
 
-// Instagram profile + recent media
+// Instagram profile + recent media (tries Business API first, then Instagram API)
 app.get('/api/instagram/profile', async (_req, res) => {
   const token = env.INSTAGRAM_ACCESS_TOKEN;
+  const igUserId = env.INSTAGRAM_USER_ID;
   if (!token) {
     res.json({ success: false, error: 'Instagram not configured' });
     return;
   }
   try {
+    // Try Business API first (graph.facebook.com) - works with EAA tokens
+    if (igUserId) {
+      const fbBase = 'https://graph.facebook.com/v21.0';
+      const profileRes = await fetch(`${fbBase}/${igUserId}?fields=id,username,name,biography,profile_picture_url,followers_count,follows_count,media_count,website&access_token=${token}`);
+      const profile = await profileRes.json() as any;
+      if (!profile.error) {
+        const mediaRes = await fetch(`${fbBase}/${igUserId}/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count&limit=6&access_token=${token}`);
+        const media = await mediaRes.json() as any;
+        res.json({ success: true, data: { profile, recentMedia: media.data || [] } });
+        return;
+      }
+      console.log('[Instagram] Business API failed, trying Instagram API:', profile.error.message);
+    }
+
+    // Fallback: Instagram API (graph.instagram.com) - works with IGAA tokens
+    const igBase = 'https://graph.instagram.com/v21.0';
     const [profileRes, mediaRes] = await Promise.all([
-      fetch(`https://graph.instagram.com/v21.0/me?fields=id,username,name,biography,profile_picture_url,followers_count,follows_count,media_count,website&access_token=${token}`),
-      fetch(`https://graph.instagram.com/v21.0/me/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count&limit=6&access_token=${token}`),
+      fetch(`${igBase}/me?fields=id,username,name,account_type,profile_picture_url,followers_count,follows_count,media_count,biography,website&access_token=${token}`),
+      fetch(`${igBase}/me/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count&limit=6&access_token=${token}`),
     ]);
-    const profile = await profileRes.json();
-    const media = await mediaRes.json();
-    res.json({ success: true, data: { profile, recentMedia: (media as any).data || [] } });
+    const profile = await profileRes.json() as any;
+    const media = await mediaRes.json() as any;
+    if (profile.error) {
+      console.error('[Instagram] Both APIs failed:', profile.error.message);
+      res.json({ success: false, error: profile.error.message });
+      return;
+    }
+    res.json({ success: true, data: { profile, recentMedia: media.data || [] } });
   } catch (err: any) {
     res.status(500).json({ success: false, error: err?.message || 'Failed to fetch Instagram data' });
   }
