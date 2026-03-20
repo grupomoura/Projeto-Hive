@@ -1,35 +1,7 @@
 const API_TOKEN = process.env.API_TOKEN || 'instapost_service_2026';
+const API_URL = process.env.API_URL || 'http://api:3001';
 
-// Try multiple URLs to find the API - Docker internal names first, then public IP
-const API_CANDIDATES = [
-  process.env.API_URL,
-  'http://api:3001',
-  'http://instapost-api:3001',
-  'http://localhost:3001',
-  'http://72.60.148.203:3001',
-].filter(Boolean) as string[];
-
-let API_URL = API_CANDIDATES[0];
-
-async function discoverApi(): Promise<string> {
-  for (const url of API_CANDIDATES) {
-    try {
-      const res = await fetch(`${url}/api/health`, { signal: AbortSignal.timeout(3000) });
-      if (res.ok) {
-        console.log(`[Bot API] Discovered API at ${url}`);
-        return url;
-      }
-    } catch {
-      console.log(`[Bot API] ${url} not reachable`);
-    }
-  }
-  console.error('[Bot API] No API URL reachable! Using first candidate:', API_CANDIDATES[0]);
-  return API_CANDIDATES[0];
-}
-
-// Auto-discover on startup
-discoverApi().then(url => { API_URL = url; });
-
+console.log(`[Bot API Client] API_URL=${API_URL}`);
 console.log(`[Bot API Client] TOKEN=${API_TOKEN ? API_TOKEN.slice(0, 10) + '...' : 'NOT SET'}`);
 
 async function request<T = unknown>(path: string, options: RequestInit = {}): Promise<T> {
