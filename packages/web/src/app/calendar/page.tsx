@@ -239,7 +239,7 @@ export default function CalendarPage() {
                     <p className="text-sm text-text-muted">Dia livre</p>
                   </div>
                 ) : (
-                  <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-3 max-h-[400px] overflow-y-auto pr-1">
                     {selectedDayPosts.map((post) => (
                       <div
                         key={post.id}
