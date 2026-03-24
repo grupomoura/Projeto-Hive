@@ -179,14 +179,57 @@ export default function FunnelBuilderPage() {
   }
 
   // Flow view callbacks
-  function handleFlowAddStage() {
-    setViewMode('cards');
-    setAddingStage(true);
+  async function handleFlowAddStage(title: string, color: string) {
+    try {
+      const stage = await api.addStage(funnelId, { title, color });
+      setFunnel((f: any) => ({ ...f, stages: [...f.stages, { ...stage, steps: [] }] }));
+    } catch {}
   }
 
-  function handleFlowAddStep(stageId: string) {
-    setViewMode('cards');
-    setAddingStepTo(stageId);
+  async function handleFlowAddStep(stageId: string, title: string, type: string) {
+    try {
+      const step = await api.addStep(funnelId, stageId, { title, type });
+      setFunnel((f: any) => ({
+        ...f,
+        stages: f.stages.map((s: any) =>
+          s.id === stageId ? { ...s, steps: [...s.steps, step] } : s,
+        ),
+      }));
+    } catch {}
+  }
+
+  async function handleFlowEditStep(stageId: string, stepId: string, data: any) {
+    try {
+      const updated = await api.updateStep(funnelId, stageId, stepId, data);
+      setFunnel((f: any) => ({
+        ...f,
+        stages: f.stages.map((s: any) =>
+          s.id === stageId
+            ? { ...s, steps: s.steps.map((st: any) => (st.id === stepId ? { ...st, ...updated } : st)) }
+            : s,
+        ),
+      }));
+    } catch {}
+  }
+
+  async function handleMoveStep(stepId: string, sourceStageId: string, targetStageId: string) {
+    try {
+      const targetStage = funnel.stages.find((s: any) => s.id === targetStageId);
+      const order = targetStage?.steps?.length || 0;
+      await api.moveStep(funnelId, stepId, { targetStageId, order });
+      setFunnel((f: any) => {
+        const step = f.stages.find((s: any) => s.id === sourceStageId)?.steps.find((st: any) => st.id === stepId);
+        if (!step) return f;
+        return {
+          ...f,
+          stages: f.stages.map((s: any) => {
+            if (s.id === sourceStageId) return { ...s, steps: s.steps.filter((st: any) => st.id !== stepId) };
+            if (s.id === targetStageId) return { ...s, steps: [...s.steps, step] };
+            return s;
+          }),
+        };
+      });
+    } catch {}
   }
 
   if (loading) {
@@ -289,7 +332,8 @@ export default function FunnelBuilderPage() {
             onAddStep={handleFlowAddStep}
             onDeleteStep={handleDeleteStep}
             onToggleStepStatus={handleToggleStepStatus}
-            onEditStep={() => {}}
+            onEditStep={handleFlowEditStep}
+            onMoveStep={handleMoveStep}
           />
         </Suspense>
       )}
