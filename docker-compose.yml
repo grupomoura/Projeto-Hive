@@ -52,7 +52,18 @@ services:
       timeout: 5s
       retries: 5
 
+  video-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.video
+    container_name: instapost-video-worker
+    volumes:
+      - videowork:/tmp/instapost-videos
+      - ./scripts/video:/app/scripts
+    restart: unless-stopped
+
 volumes:
   pgdata:
   redisdata:
   miniodata:
+  videowork:

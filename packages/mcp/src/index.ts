@@ -23,6 +23,9 @@ import { deleteProject } from './tools/deleteProject';
 import { addModule } from './tools/addModule';
 import { updateModule } from './tools/updateModule';
 import { deleteModule } from './tools/deleteModule';
+import { analyzeYoutubeVideo } from './tools/analyzeYoutubeVideo';
+import { cutYoutubeClips } from './tools/cutYoutubeClips';
+import { listVideoClips } from './tools/listVideoClips';
 
 const PORT = parseInt(process.env.PORT || '3002', 10);
 
@@ -358,6 +361,56 @@ function registerTools(server: McpServer) {
     },
     async ({ project_id, module_id }) => {
       const result = await deleteModule({ project_id, module_id });
+      return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+    },
+  );
+
+  // ── Video Clips ──
+
+  server.tool(
+    'analyze_youtube_video',
+    'Analisa um video do YouTube: baixa, transcreve com IA e encontra os melhores momentos para clips',
+    {
+      url: z.string().describe('URL do video do YouTube'),
+      whisper_model: z.enum(['tiny', 'base', 'small', 'medium', 'large']).optional().describe('Modelo Whisper (default: tiny)'),
+      max_moments: z.number().optional().describe('Maximo de momentos para retornar (default: 10)'),
+      language: z.string().optional().describe('Forcar idioma (pt, en, es)'),
+    },
+    async (input) => {
+      const result = await analyzeYoutubeVideo(input);
+      return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+    },
+  );
+
+  server.tool(
+    'cut_youtube_clips',
+    'Corta clips de um video ja analisado. Gera videos verticais com face cam e legendas',
+    {
+      video_clip_id: z.string().describe('ID do video clip (retornado por analyze_youtube_video)'),
+      clips: z.array(z.object({
+        start: z.number().describe('Segundo inicial'),
+        end: z.number().describe('Segundo final'),
+        title: z.string().optional().describe('Titulo do clip'),
+      })).describe('Lista de clips para cortar'),
+      format: z.enum(['vertical', 'square', 'horizontal']).optional().describe('Formato (default: vertical)'),
+      burn_subs: z.boolean().optional().describe('Queimar legendas no video (default: false)'),
+    },
+    async (input) => {
+      const result = await cutYoutubeClips(input);
+      return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+    },
+  );
+
+  server.tool(
+    'list_video_clips',
+    'Lista todos os video clips com status e detalhes',
+    {
+      status: z.string().optional().describe('Filtrar por status: PENDING, ANALYZING, ANALYZED, CLIPPING, READY, FAILED'),
+      page: z.string().optional().describe('Pagina (default: 1)'),
+      limit: z.string().optional().describe('Itens por pagina (default: 20)'),
+    },
+    async (input) => {
+      const result = await listVideoClips(input);
       return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
     },
   );

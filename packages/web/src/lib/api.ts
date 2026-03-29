@@ -216,4 +216,18 @@ export const api = {
     request(`/api/funnels/${funnelId}/stages/reorder`, { method: 'PUT', body: JSON.stringify({ stageIds }) }),
   moveStep: (funnelId: string, stepId: string, body: { targetStageId: string; order: number }) =>
     request(`/api/funnels/${funnelId}/steps/${stepId}/move`, { method: 'PUT', body: JSON.stringify(body) }),
+
+  // Video Clips
+  analyzeVideo: (body: Record<string, unknown>) =>
+    request('/api/videos', { method: 'POST', body: JSON.stringify(body) }),
+  getVideoClip: (id: string) =>
+    request<any>(`/api/videos/${id}`),
+  listVideoClips: (params?: Record<string, string>) => {
+    const qs = params ? '?' + new URLSearchParams(params).toString() : '';
+    return request<{ data: { items: any[]; total: number; page: number; limit: number } }>(`/api/videos${qs}`);
+  },
+  cutVideoClips: (id: string, body: Record<string, unknown>) =>
+    request(`/api/videos/${id}/cut`, { method: 'POST', body: JSON.stringify(body) }),
+  deleteVideoClip: (id: string) =>
+    request(`/api/videos/${id}`, { method: 'DELETE' }),
 };

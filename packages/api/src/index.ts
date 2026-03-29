@@ -11,9 +11,11 @@ import taskRoutes from './routes/task.routes';
 import projectRoutes from './routes/project.routes';
 import teamRoutes from './routes/team.routes';
 import funnelRoutes from './routes/funnel.routes';
+import videoRoutes from './routes/video.routes';
 import { publishWorker } from './jobs/publish.worker';
 import { tokenRefreshWorker, initTokenRefreshJob } from './jobs/token-refresh.worker';
 import { taskReminderWorker } from './jobs/task-reminder.worker';
+import { videoWorker } from './jobs/video.worker';
 
 const app = express();
 
@@ -30,6 +32,7 @@ app.use('/api/tasks', taskRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/team', teamRoutes);
 app.use('/api/funnels', funnelRoutes);
+app.use('/api/videos', videoRoutes);
 
 // Health check with env diagnostics
 app.get('/api/health', (_req, res) => {
@@ -182,6 +185,10 @@ async function start() {
 
   taskReminderWorker.on('failed', (job, err) => {
     console.error(`Task reminder job ${job?.id} failed:`, err.message);
+  });
+
+  videoWorker.on('failed', (job, err) => {
+    console.error(`Video job ${job?.id} failed:`, err.message);
   });
 
   app.listen(env.PORT, () => {

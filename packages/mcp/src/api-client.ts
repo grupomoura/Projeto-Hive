@@ -103,4 +103,18 @@ export const api = {
 
   deleteModule: (projectId: string, moduleId: string) =>
     request(`/api/projects/${projectId}/modules/${moduleId}`, { method: 'DELETE' }),
+
+  // Video Clips
+  analyzeVideo: (body: Record<string, unknown>) =>
+    request('/api/videos', { method: 'POST', body: JSON.stringify(body) }),
+
+  getVideoClip: (id: string) => request<any>(`/api/videos/${id}`),
+
+  listVideoClips: (params: Record<string, string>) => {
+    const qs = new URLSearchParams(params).toString();
+    return request<{ items: any[]; total: number }>(`/api/videos?${qs}`);
+  },
+
+  cutVideoClips: (id: string, body: Record<string, unknown>) =>
+    request(`/api/videos/${id}/cut`, { method: 'POST', body: JSON.stringify(body) }),
 };
