@@ -76,10 +76,15 @@ export default function SettingsPage() {
   async function loadSettings() {
     try {
       const res: any = await api.getSettings();
-      const data = res.data || res;
+      // res can be: array directly, or { data: array }, or { items: array }
+      let items: any[] = [];
+      if (Array.isArray(res)) items = res;
+      else if (Array.isArray(res?.data)) items = res.data;
+      else if (Array.isArray(res?.items)) items = res.items;
+
       const map: Record<string, { value: string; hasValue: boolean }> = {};
-      (Array.isArray(data) ? data : []).forEach((s: any) => {
-        map[s.key] = { value: s.value, hasValue: s.hasValue };
+      items.forEach((s: any) => {
+        map[s.key] = { value: s.value || '', hasValue: !!s.hasValue };
       });
       setSettings(map);
     } catch {}
@@ -93,10 +98,11 @@ export default function SettingsPage() {
     setSaving((s) => ({ ...s, [key]: true }));
     try {
       await api.updateSetting(key, value);
-      setSettings((s) => ({ ...s, [key]: { value: '••••••••' + value.slice(-4), hasValue: true } }));
       setEditValues((v) => ({ ...v, [key]: '' }));
       setSaved((s) => ({ ...s, [key]: true }));
       setTimeout(() => setSaved((s) => ({ ...s, [key]: false })), 2000);
+      // Reload settings to get fresh state
+      await loadSettings();
     } catch {}
     setSaving((s) => ({ ...s, [key]: false }));
   }
