@@ -1,6 +1,6 @@
-FROM node:20-alpine AS builder
+FROM node:22-slim AS builder
 WORKDIR /app
-COPY package.json package-lock.json turbo.json tsconfig.base.json ./
+COPY package.json package-lock.json turbo.json ./
 COPY packages/api/package.json ./packages/api/
 COPY packages/bot/package.json ./packages/bot/
 COPY packages/mcp/package.json ./packages/mcp/
@@ -12,15 +12,33 @@ COPY packages/api ./packages/api
 RUN cd packages/api && npx prisma generate
 RUN npx turbo build --filter=@instapost/api
 
-FROM node:20-alpine
+FROM node:22-slim
 WORKDIR /app
-RUN apk add --no-cache wget
+
+# Install Python, ffmpeg, wget
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends python3 python3-pip python3-venv ffmpeg wget && \
+    rm -rf /var/lib/apt/lists/*
+
+# Python dependencies (video clipper)
+COPY scripts/video/requirements.txt /tmp/requirements.txt
+RUN python3 -m venv /opt/venv && \
+    /opt/venv/bin/pip install --no-cache-dir -r /tmp/requirements.txt
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Copy built API
 COPY --from=builder /app/packages/api/dist ./dist
 COPY --from=builder /app/packages/api/package.json ./
 COPY --from=builder /app/packages/api/prisma ./prisma
 COPY --from=builder /app/node_modules ./node_modules
 
-# Internal Docker network config (matches docker-compose.prod.yml)
+# Copy video scripts + install worker Node dependencies
+COPY scripts/video/ ./scripts/video/
+COPY scripts/video/package.json /tmp/video-pkg/package.json
+RUN cd /tmp/video-pkg && npm install --omit=dev && cp -r node_modules /app/scripts/video/
+RUN cd /app/scripts/video && npx prisma generate --schema=/app/prisma/schema.prisma
+
+# Internal Docker network config
 ENV NODE_ENV=production
 ENV PORT=3001
 ENV DATABASE_URL=postgresql://instapost:changeme@postgres:5432/instapost
@@ -34,21 +52,24 @@ ENV MINIO_BUCKET=instapost-images
 ENV NANO_BANANA_PROVIDER=google
 ENV JWT_EXPIRES_IN=7d
 ENV INTERNAL_SERVICE_TOKEN=instapost_service_2026
+ENV SCRIPTS_DIR=/app/scripts/video
 
-# External config from Coolify build args
+# External config from Coolify env vars
 ARG INSTAGRAM_ACCESS_TOKEN
 ARG INSTAGRAM_USER_ID
 ARG NANO_BANANA_API_KEY
 ARG JWT_SECRET
 ARG FRONTEND_URL
 ARG MINIO_PUBLIC_URL
-ENV INSTAGRAM_ACCESS_TOKEN=${INSTAGRAM_ACCESS_TOKEN:-IGAAYbW9T4MHNBZAGJ6SkdTUk9fU2w2RktoMmRVUkVlbExNVUJHVFRvS3ZABeGcxS2hiazdIR3FtNi1UQVlqWjBTeWlmOXoyVTNScmNaeDg3eG9jOXlNaWhadHp1Tnl2MWhKU3J2T2hxSHptS2ZAnd3dXdDBwT1RXX2FRbjBleWJ2dwZDZD}
-ENV INSTAGRAM_USER_ID=${INSTAGRAM_USER_ID:-26182080638113769}
-ENV NANO_BANANA_API_KEY=${NANO_BANANA_API_KEY:-AIzaSyCcxoV8xT_7O2uPNB6cOqaajKQgH98dziE}
-ENV JWT_SECRET=${JWT_SECRET:-dev_secret_instapost_ai_2026}
-ENV FRONTEND_URL=${FRONTEND_URL:-http://72.60.148.203:3000}
-ENV MINIO_PUBLIC_URL=${MINIO_PUBLIC_URL:-http://72.60.148.203:9000}
+ENV INSTAGRAM_ACCESS_TOKEN=${INSTAGRAM_ACCESS_TOKEN}
+ENV INSTAGRAM_USER_ID=${INSTAGRAM_USER_ID}
+ENV NANO_BANANA_API_KEY=${NANO_BANANA_API_KEY}
+ENV JWT_SECRET=${JWT_SECRET:-dev_secret_change_me}
+ENV FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
+ENV MINIO_PUBLIC_URL=${MINIO_PUBLIC_URL:-http://localhost:9000}
 
 EXPOSE 3001
 HEALTHCHECK --interval=30s --timeout=5s CMD wget -qO- http://localhost:3001/api/health || exit 1
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/index.js"]
+
+# Start: video worker in background + API
+CMD ["sh", "-c", "npx prisma migrate deploy && node /app/scripts/video/worker.mjs & node dist/index.js"]

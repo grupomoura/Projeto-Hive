@@ -34,13 +34,18 @@ export async function gerarCommand(ctx: Context) {
 
   if (!tema) {
     await ctx.reply(
-      'Use: /gerar [tamanho] [N] [tema do post]\n\n' +
-      'Tamanhos: 1:1 (Feed), 4:5 (Retrato), 9:16 (Stories)\n' +
-      'N: numero de imagens (2-10 para carrossel)\n\n' +
-      'Exemplos:\n' +
-      '  /gerar novidades do Claude 4\n' +
-      '  /gerar 3 dicas de produtividade\n' +
-      '  /gerar 4:5 5 receitas saudaveis'
+      '🎨 *Gerar Post com IA*\n\n' +
+      'Use: `/gerar [tamanho] [N] [tema]`\n\n' +
+      '📐 *Tamanhos disponiveis:*\n' +
+      '• `1:1` — Feed (padrao)\n' +
+      '• `4:5` — Retrato\n' +
+      '• `9:16` — Stories/Reels\n\n' +
+      '🎠 *Carrossel:* adicione um numero (2-10)\n\n' +
+      '📝 *Exemplos:*\n' +
+      '• `/gerar novidades do Claude 4`\n' +
+      '• `/gerar 3 dicas de produtividade`\n' +
+      '• `/gerar 4:5 5 receitas saudaveis`',
+      { parse_mode: 'Markdown' },
     );
     return;
   }
@@ -49,16 +54,20 @@ export async function gerarCommand(ctx: Context) {
   const ratioLabel = aspectRatio === '4:5' ? 'Retrato' : aspectRatio === '9:16' ? 'Stories' : 'Feed';
 
   await ctx.reply(
-    `Gerando ${isCarousel ? count + ' imagens' : 'imagem'} (${ratioLabel} ${aspectRatio})${isCarousel ? ' carrossel' : ''} e legenda... Aguarde.`
+    `⏳ *Gerando post...*\n\n` +
+    `📝 Tema: _${tema}_\n` +
+    `📐 Formato: ${ratioLabel} (${aspectRatio})\n` +
+    `🖼 Imagens: ${isCarousel ? count + ' (carrossel)' : '1'}\n\n` +
+    `Aguarde um momento...`,
+    { parse_mode: 'Markdown' },
   );
 
   try {
-    // Generate images in parallel + caption
     const imagePromises = Array.from({ length: count }, (_, i) =>
       api.generateImage(
         count > 1 ? `${tema} - variacao ${i + 1} de ${count}` : tema,
         aspectRatio,
-      )
+      ),
     );
 
     const [captionSettled, ...imageSettled] = await Promise.all([
@@ -67,18 +76,16 @@ export async function gerarCommand(ctx: Context) {
     ]);
 
     const captionResult = captionSettled;
-    const successfulImages = imageSettled
-      .filter((r): r is { imageUrl: string } => !!r?.imageUrl);
+    const successfulImages = imageSettled.filter((r): r is { imageUrl: string } => !!r?.imageUrl);
 
     if (successfulImages.length === 0 && !captionResult) {
-      await ctx.reply('Erro: nao foi possivel gerar imagem nem legenda. Tente novamente.');
+      await ctx.reply('❌ Nao foi possivel gerar imagem nem legenda. Tente novamente em alguns minutos.');
       return;
     }
 
     const caption = captionResult?.caption || tema;
     const hashtags = captionResult?.hashtags || [];
 
-    // Create post
     const postPayload: Record<string, unknown> = {
       caption,
       hashtags,
@@ -89,10 +96,7 @@ export async function gerarCommand(ctx: Context) {
 
     if (successfulImages.length >= 2) {
       postPayload.isCarousel = true;
-      postPayload.images = successfulImages.map((img, idx) => ({
-        imageUrl: img.imageUrl,
-        order: idx,
-      }));
+      postPayload.images = successfulImages.map((img, idx) => ({ imageUrl: img.imageUrl, order: idx }));
     } else if (successfulImages.length === 1) {
       postPayload.imageUrl = successfulImages[0].imageUrl;
     }
@@ -100,29 +104,27 @@ export async function gerarCommand(ctx: Context) {
     const post = (await api.createPost(postPayload)) as any;
 
     const keyboard = new InlineKeyboard()
-      .text('Aprovar', `approve_${post.id}`)
-      .text('Nova Imagem', `regen_${post.id}`)
+      .text('✅ Aprovar', `approve_${post.id}`)
+      .text('🔄 Nova Imagem', `regen_${post.id}`)
       .row()
-      .text('Publicar Agora', `publish_${post.id}`)
-      .text('Agendar', `schedule_${post.id}`)
+      .text('📤 Publicar Agora', `publish_${post.id}`)
+      .text('📅 Agendar', `schedule_${post.id}`)
       .row()
-      .text('Cancelar', `cancel_${post.id}`);
+      .text('❌ Cancelar', `cancel_${post.id}`);
 
     const captionText = `${caption}\n\n${hashtags.map((h: string) => `#${h}`).join(' ')}`;
 
     let statusMsg = '';
     if (isCarousel && successfulImages.length < count) {
-      statusMsg = `\n\n${successfulImages.length}/${count} imagens geradas (algumas falharam).`;
+      statusMsg = `\n\n⚠️ ${successfulImages.length}/${count} imagens geradas (algumas falharam).`;
     }
     if (successfulImages.length === 0) {
-      statusMsg = '\n\nImagem indisponivel (Gemini sobrecarregado).';
+      statusMsg = '\n\n⚠️ Imagem indisponivel (IA sobrecarregada). Use "Nova Imagem" para tentar novamente.';
     }
 
     if (successfulImages.length >= 2) {
-      // Send as media group (carousel in Telegram)
       await sendMediaGroup(ctx, successfulImages.map((img) => img.imageUrl), (captionText + statusMsg).slice(0, 1024));
-      // Send buttons in separate message (media group doesn't support inline keyboard)
-      await ctx.reply(`Carrossel com ${successfulImages.length} imagens gerado!`, { reply_markup: keyboard });
+      await ctx.reply(`✅ Carrossel com ${successfulImages.length} imagens criado!`, { reply_markup: keyboard });
     } else if (successfulImages.length === 1) {
       await sendPhoto(ctx, successfulImages[0].imageUrl, {
         caption: (captionText + statusMsg).slice(0, 1024),
@@ -133,6 +135,6 @@ export async function gerarCommand(ctx: Context) {
     }
   } catch (err: any) {
     console.error('[Bot] /gerar failed:', err.message);
-    await ctx.reply('Erro ao gerar post. Tente novamente.');
+    await ctx.reply('❌ Erro ao gerar post. Tente novamente.');
   }
 }

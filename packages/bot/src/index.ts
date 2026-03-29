@@ -52,7 +52,7 @@ bot.on('message:text', async (ctx) => {
   const text = ctx.message.text;
   if (text.startsWith('/')) return;
 
-  await ctx.reply(`Gerando post sobre: "${text}"... Aguarde.`);
+  await ctx.reply(`⏳ *Gerando post sobre:* _${text}_\n\nCriando imagem e legenda com IA... Aguarde.`, { parse_mode: 'Markdown' });
 
   try {
     const [imageSettled, captionSettled] = await Promise.allSettled([
@@ -71,7 +71,7 @@ bot.on('message:text', async (ctx) => {
     }
 
     if (!imageResult && !captionResult) {
-      await ctx.reply('Erro: nao foi possivel gerar imagem nem legenda. Tente novamente em alguns minutos.');
+      await ctx.reply('❌ Nao foi possivel gerar imagem nem legenda. Tente novamente em alguns minutos.');
       return;
     }
 
@@ -87,17 +87,17 @@ bot.on('message:text', async (ctx) => {
     })) as any;
 
     const keyboard = new InlineKeyboard()
-      .text('Aprovar', `approve_${post.id}`)
-      .text('Nova Imagem', `regen_${post.id}`)
+      .text('✅ Aprovar', `approve_${post.id}`)
+      .text('🔄 Nova Imagem', `regen_${post.id}`)
       .row()
-      .text('Publicar Agora', `publish_${post.id}`)
-      .text('Agendar', `schedule_${post.id}`)
+      .text('📤 Publicar Agora', `publish_${post.id}`)
+      .text('📅 Agendar', `schedule_${post.id}`)
       .row()
-      .text('Cancelar', `cancel_${post.id}`);
+      .text('❌ Cancelar', `cancel_${post.id}`);
 
     const captionText = `${caption}\n\n${hashtags.map((h: string) => `#${h}`).join(' ')}`;
     let statusMsg = '';
-    if (!imageResult) statusMsg = '\n\n⚠️ Imagem indisponivel (Gemini sobrecarregado). Use "Nova Imagem" para tentar de novo.';
+    if (!imageResult) statusMsg = '\n\n⚠️ Imagem indisponivel (IA sobrecarregada). Use "Nova Imagem" para tentar novamente.';
 
     if (imageResult?.imageUrl) {
       await sendPhoto(ctx, imageResult.imageUrl, {
@@ -109,7 +109,7 @@ bot.on('message:text', async (ctx) => {
     }
   } catch (err: any) {
     console.error('[Bot] Post generation failed:', err.message);
-    await ctx.reply(`Erro ao gerar post: ${err.message}`);
+    await ctx.reply(`❌ Erro ao gerar post: ${err.message}`);
   }
 });
 
