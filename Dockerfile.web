@@ -1,0 +1,22 @@
+FROM node:22-alpine
+
+WORKDIR /app
+
+# Install dependencies
+COPY package.json package-lock.json ./
+COPY packages/web/package.json packages/web/
+COPY packages/shared/package.json packages/shared/
+RUN npm ci --workspace=packages/shared --workspace=packages/web --include-workspace-root
+
+# Copy source
+COPY packages/shared/ packages/shared/
+COPY packages/web/ packages/web/
+COPY turbo.json ./
+
+# Build
+RUN npm run build --workspace=packages/shared
+RUN npm run build --workspace=packages/web
+
+EXPOSE 3000
+
+CMD ["npm", "run", "start", "--workspace=packages/web"]

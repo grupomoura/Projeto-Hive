@@ -1,4 +1,4 @@
-const API_TOKEN = process.env.API_TOKEN || 'instapost_service_2026';
+const API_TOKEN = process.env.API_TOKEN || process.env.INTERNAL_SERVICE_TOKEN || '';
 const API_URL = process.env.API_URL || 'http://api:3001';
 
 console.log(`[Bot API Client] API_URL=${API_URL}`);
