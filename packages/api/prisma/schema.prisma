@@ -28,6 +28,7 @@ model User {
   projects       Project[]
   funnels        Funnel[]
   videoClips     VideoClip[]
+  settings       Setting[]
   instagramToken InstagramToken?
   invitations    Invitation[]
   allowedPages   String[]        @default([])
@@ -297,6 +298,19 @@ model FunnelStep {
 }
 
 // === Video Clip models ===
+
+model Setting {
+  id        String   @id @default(uuid())
+  key       String
+  value     String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, key])
+  @@index([userId])
+}
 
 model VideoClip {
   id        String   @id @default(uuid())

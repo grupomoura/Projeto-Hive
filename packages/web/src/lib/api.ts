@@ -230,4 +230,10 @@ export const api = {
     request(`/api/videos/${id}/cut`, { method: 'POST', body: JSON.stringify(body) }),
   deleteVideoClip: (id: string) =>
     request(`/api/videos/${id}`, { method: 'DELETE' }),
+
+  // Settings
+  getSettings: () => request<any>('/api/settings'),
+  updateSetting: (key: string, value: string) =>
+    request('/api/settings', { method: 'PUT', body: JSON.stringify({ key, value }) }),
+  deleteSetting: (key: string) => request(`/api/settings/${key}`, { method: 'DELETE' }),
 };

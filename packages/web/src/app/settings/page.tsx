@@ -3,109 +3,247 @@
 import { useEffect, useState } from 'react';
 import { api } from '../../lib/api';
 import { useAuth } from '../../components/AuthProvider';
-import { Camera, Zap, Send, Monitor, LogOut, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import {
+  Camera, Zap, Send, Monitor, LogOut, CheckCircle, XCircle,
+  Loader2, Eye, EyeOff, Save, Copy, Check, ExternalLink, Hexagon,
+} from 'lucide-react';
+
+interface SettingField {
+  key: string;
+  label: string;
+  placeholder: string;
+  type?: string;
+}
+
+interface ServiceConfig {
+  name: string;
+  description: string;
+  icon: any;
+  iconBg: string;
+  iconColor: string;
+  fields: SettingField[];
+}
+
+const SERVICES: ServiceConfig[] = [
+  {
+    name: 'Instagram',
+    description: 'Publicacao automatica de posts no Instagram via Graph API',
+    icon: Camera,
+    iconBg: 'bg-gradient-to-br from-pink-50 to-purple-50',
+    iconColor: 'text-pink-500',
+    fields: [
+      { key: 'INSTAGRAM_ACCESS_TOKEN', label: 'Access Token', placeholder: 'EAAxxxxxxx...' },
+      { key: 'INSTAGRAM_USER_ID', label: 'User ID', placeholder: '17841400xxxxx' },
+    ],
+  },
+  {
+    name: 'Geracao de Imagens (Gemini)',
+    description: 'Geracao de imagens e legendas com IA via Google Gemini',
+    icon: Zap,
+    iconBg: 'bg-amber-50',
+    iconColor: 'text-amber-600',
+    fields: [
+      { key: 'NANO_BANANA_API_KEY', label: 'Google Gemini API Key', placeholder: 'AIzaSyxxxxxxxxx...' },
+    ],
+  },
+  {
+    name: 'Telegram Bot',
+    description: 'Criacao e gerenciamento de posts via Telegram',
+    icon: Send,
+    iconBg: 'bg-blue-50',
+    iconColor: 'text-blue-500',
+    fields: [
+      { key: 'TELEGRAM_BOT_TOKEN', label: 'Bot Token', placeholder: '123456:ABCxxxxxxx...' },
+      { key: 'TELEGRAM_ALLOWED_CHAT_IDS', label: 'Chat IDs (separados por virgula)', placeholder: '123456789,987654321' },
+    ],
+  },
+];
 
 export default function SettingsPage() {
-  const [igStatus, setIgStatus] = useState<boolean | null>(null);
   const { logout } = useAuth();
+  const [settings, setSettings] = useState<Record<string, { value: string; hasValue: boolean }>>({});
+  const [editValues, setEditValues] = useState<Record<string, string>>({});
+  const [showValues, setShowValues] = useState<Record<string, boolean>>({});
+  const [saving, setSaving] = useState<Record<string, boolean>>({});
+  const [saved, setSaved] = useState<Record<string, boolean>>({});
+  const [loading, setLoading] = useState(true);
+  const [mcpCopied, setMcpCopied] = useState(false);
 
   useEffect(() => {
-    async function load() {
-      try {
-        const result = await api.instagramStatus();
-        setIgStatus(result.connected);
-      } catch {
-        setIgStatus(false);
-      }
-    }
-    load();
+    loadSettings();
   }, []);
 
-  const services = [
-    {
-      name: 'Instagram',
-      description: 'Publicacao automatica de posts no Instagram',
-      connected: igStatus,
-      loading: igStatus === null,
-      icon: Camera,
-      iconBg: 'bg-gradient-to-br from-primary/10 to-accent-pink/10',
-      iconColor: 'text-primary',
-      hint: 'Configure INSTAGRAM_ACCESS_TOKEN e INSTAGRAM_USER_ID no arquivo .env',
-    },
-    {
-      name: 'Geracao de Imagens (Gemini)',
-      description: 'Geracao de imagens com IA via Google Gemini',
-      connected: true,
-      loading: false,
-      icon: Zap,
-      iconBg: 'bg-amber-50',
-      iconColor: 'text-accent-orange',
-      hint: 'Configurado via NANO_BANANA_API_KEY no arquivo .env',
-    },
-    {
-      name: 'Telegram Bot',
-      description: 'Criacao e gerenciamento de posts via Telegram',
-      connected: true,
-      loading: false,
-      icon: Send,
-      iconBg: 'bg-blue-50',
-      iconColor: 'text-status-scheduled',
-      hint: 'Configure TELEGRAM_BOT_TOKEN e TELEGRAM_ALLOWED_CHAT_IDS no arquivo .env',
-    },
-    {
-      name: 'MCP Server',
-      description: 'Integracao com Claude e outros agentes IA',
-      connected: true,
-      loading: false,
-      icon: Monitor,
-      iconBg: 'bg-emerald-50',
-      iconColor: 'text-status-published',
-      hint: 'Servidor MCP com 8 tools para integracao com agentes IA',
-    },
-  ];
+  async function loadSettings() {
+    try {
+      const res: any = await api.getSettings();
+      const data = res.data || res;
+      const map: Record<string, { value: string; hasValue: boolean }> = {};
+      (Array.isArray(data) ? data : []).forEach((s: any) => {
+        map[s.key] = { value: s.value, hasValue: s.hasValue };
+      });
+      setSettings(map);
+    } catch {}
+    setLoading(false);
+  }
+
+  async function handleSave(key: string) {
+    const value = editValues[key];
+    if (value === undefined || value === '') return;
+
+    setSaving((s) => ({ ...s, [key]: true }));
+    try {
+      await api.updateSetting(key, value);
+      setSettings((s) => ({ ...s, [key]: { value: '••••••••' + value.slice(-4), hasValue: true } }));
+      setEditValues((v) => ({ ...v, [key]: '' }));
+      setSaved((s) => ({ ...s, [key]: true }));
+      setTimeout(() => setSaved((s) => ({ ...s, [key]: false })), 2000);
+    } catch {}
+    setSaving((s) => ({ ...s, [key]: false }));
+  }
+
+  function getMcpUrl() {
+    if (typeof window === 'undefined') return '';
+    const host = window.location.hostname;
+    const port = 3002;
+    const protocol = window.location.protocol;
+    return `${protocol}//${host}:${port}/mcp`;
+  }
+
+  function copyMcpUrl() {
+    navigator.clipboard.writeText(getMcpUrl());
+    setMcpCopied(true);
+    setTimeout(() => setMcpCopied(false), 2000);
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-6 h-6 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto animate-fade-in">
       <div className="mb-6">
         <h1 className="text-page-title text-text-primary">Configuracoes</h1>
-        <p className="text-sm text-text-secondary mt-1">Gerencie integracoes e preferencias</p>
+        <p className="text-sm text-text-secondary mt-1">Gerencie integracoes e chaves de API</p>
       </div>
 
-      {/* Services */}
+      {/* MCP Connection */}
+      <div className="mb-6">
+        <p className="text-[11px] font-semibold text-text-muted uppercase tracking-wider mb-3">Conexao MCP</p>
+        <div className="card p-5">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-50 to-yellow-50 flex items-center justify-center flex-shrink-0">
+              <Hexagon className="w-6 h-6 text-amber-600" strokeWidth={1.5} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="text-sm font-bold text-text-primary">MCP Server</h3>
+                <span className="badge badge-completed flex items-center gap-1">
+                  <CheckCircle className="w-3 h-3" strokeWidth={2} />
+                  Ativo
+                </span>
+              </div>
+              <p className="text-xs text-text-secondary mb-3">
+                Conecte ao Claude Desktop, Claude Code ou Cowork com esta URL
+              </p>
+              <div className="flex items-center gap-2">
+                <code className="flex-1 bg-bg-main rounded-lg px-3 py-2 text-xs font-mono text-text-primary truncate">
+                  {getMcpUrl()}
+                </code>
+                <button
+                  onClick={copyMcpUrl}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-primary/10 text-primary text-xs font-semibold hover:bg-primary/20 transition-colors"
+                >
+                  {mcpCopied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                  {mcpCopied ? 'Copiado!' : 'Copiar'}
+                </button>
+              </div>
+              <p className="text-[11px] text-text-muted mt-2">
+                24 tools disponiveis: posts, tarefas, projetos, modulos, imagens, legendas, clips de video
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* API Keys */}
       <div className="space-y-4 mb-8">
-        <p className="text-[11px] font-semibold text-text-muted uppercase tracking-wider">Integracoes</p>
-        {services.map((service) => {
+        <p className="text-[11px] font-semibold text-text-muted uppercase tracking-wider">Chaves de API</p>
+
+        {SERVICES.map((service) => {
           const Icon = service.icon;
+          const allConnected = service.fields.every((f) => settings[f.key]?.hasValue);
+
           return (
-            <div key={service.name} className="card p-5 hover:-translate-y-0.5">
+            <div key={service.name} className="card p-5">
               <div className="flex items-start gap-4">
-                <div className={`w-12 h-12 rounded-card flex items-center justify-center flex-shrink-0 ${service.iconBg}`}>
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 ${service.iconBg}`}>
                   <Icon className={`w-6 h-6 ${service.iconColor}`} strokeWidth={1.5} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3 mb-1">
+                  <div className="flex items-center gap-2 mb-1">
                     <h3 className="text-sm font-bold text-text-primary">{service.name}</h3>
-                    {service.loading ? (
-                      <span className="badge bg-gray-100 text-text-muted flex items-center gap-1">
-                        <Loader2 className="w-3 h-3 animate-spin" />
-                        Verificando
-                      </span>
-                    ) : service.connected ? (
-                      <span className="badge badge-published flex items-center gap-1">
+                    {allConnected ? (
+                      <span className="badge badge-completed flex items-center gap-1">
                         <CheckCircle className="w-3 h-3" strokeWidth={2} />
                         Conectado
                       </span>
                     ) : (
-                      <span className="badge badge-failed flex items-center gap-1">
+                      <span className="badge badge-draft flex items-center gap-1">
                         <XCircle className="w-3 h-3" strokeWidth={2} />
-                        Desconectado
+                        Nao configurado
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-text-secondary mb-2">{service.description}</p>
-                  <p className="text-[11px] text-text-muted bg-bg-main rounded-input px-3 py-2 font-mono">
-                    {service.hint}
-                  </p>
+                  <p className="text-xs text-text-secondary mb-3">{service.description}</p>
+
+                  <div className="space-y-3">
+                    {service.fields.map((field) => {
+                      const setting = settings[field.key];
+                      const isEditing = editValues[field.key] !== undefined && editValues[field.key] !== '';
+                      const show = showValues[field.key];
+
+                      return (
+                        <div key={field.key}>
+                          <label className="block text-[11px] font-semibold text-text-muted mb-1">{field.label}</label>
+                          <div className="flex items-center gap-2">
+                            <div className="relative flex-1">
+                              <input
+                                type={show ? 'text' : 'password'}
+                                value={editValues[field.key] ?? ''}
+                                onChange={(e) => setEditValues((v) => ({ ...v, [field.key]: e.target.value }))}
+                                className="input-field text-xs pr-8"
+                                placeholder={setting?.hasValue ? setting.value : field.placeholder}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSave(field.key)}
+                              />
+                              <button
+                                onClick={() => setShowValues((v) => ({ ...v, [field.key]: !show }))}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-text-muted hover:text-text-primary"
+                              >
+                                {show ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                              </button>
+                            </div>
+                            <button
+                              onClick={() => handleSave(field.key)}
+                              disabled={!isEditing || saving[field.key]}
+                              className="flex items-center gap-1 px-3 py-2 rounded-lg text-xs font-semibold transition-colors disabled:opacity-40 bg-primary/10 text-primary hover:bg-primary/20"
+                            >
+                              {saving[field.key] ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : saved[field.key] ? (
+                                <Check className="w-3.5 h-3.5" />
+                              ) : (
+                                <Save className="w-3.5 h-3.5" />
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
@@ -119,7 +257,7 @@ export default function SettingsPage() {
         <div className="card p-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-card bg-red-50 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-2xl bg-red-50 flex items-center justify-center">
                 <LogOut className="w-5 h-5 text-status-failed" strokeWidth={1.5} />
               </div>
               <div>
