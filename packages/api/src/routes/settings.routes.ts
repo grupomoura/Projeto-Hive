@@ -5,6 +5,7 @@ import { authMiddleware, AuthRequest } from '../middleware/auth.middleware';
 import { validate } from '../middleware/validate';
 import { prisma } from '../config/database';
 import { resolveOwnerId } from '../helpers/resolveOwnerId';
+import { env } from '../config/env';
 
 const router = Router();
 
@@ -18,22 +19,51 @@ const ALLOWED_KEYS = [
   'MCP_URL',
 ];
 
+const NON_SECRET_KEYS = ['MCP_URL', 'TELEGRAM_ALLOWED_CHAT_IDS', 'INSTAGRAM_USER_ID'];
+
+// Check if a key has a value in .env
+function getEnvValue(key: string): string | undefined {
+  const map: Record<string, string | undefined> = {
+    INSTAGRAM_ACCESS_TOKEN: env.INSTAGRAM_ACCESS_TOKEN,
+    INSTAGRAM_USER_ID: env.INSTAGRAM_USER_ID,
+    NANO_BANANA_API_KEY: env.NANO_BANANA_API_KEY,
+    TELEGRAM_BOT_TOKEN: env.TELEGRAM_BOT_TOKEN,
+    TELEGRAM_ALLOWED_CHAT_IDS: env.TELEGRAM_ALLOWED_CHAT_IDS,
+    MCP_AUTH_TOKEN: env.MCP_AUTH_TOKEN,
+  };
+  return map[key];
+}
+
 router.use(authMiddleware);
 
-// GET /api/settings - Get all settings for current user
+// GET /api/settings - Get all settings (DB + env fallback)
 router.get('/', async (req: AuthRequest, res: Response) => {
   try {
     const userId = await resolveOwnerId(req.userId!);
-    const settings = await prisma.setting.findMany({ where: { userId } });
+    const dbSettings = await prisma.setting.findMany({ where: { userId } });
+    const dbMap = new Map(dbSettings.map((s) => [s.key, s.value]));
 
-    const NON_SECRET_KEYS = ['MCP_URL', 'TELEGRAM_ALLOWED_CHAT_IDS', 'INSTAGRAM_USER_ID'];
-    const masked = settings.map((s) => ({
-      key: s.key,
-      value: NON_SECRET_KEYS.includes(s.key) ? s.value : (s.value.length > 8 ? '••••••••' + s.value.slice(-4) : '••••'),
-      hasValue: s.value.length > 0,
-    }));
+    // Merge: DB takes priority, then env fallback
+    const result = ALLOWED_KEYS.map((key) => {
+      const dbVal = dbMap.get(key);
+      const envVal = getEnvValue(key);
+      const value = dbVal || envVal || '';
+      const hasValue = value.length > 0;
+      const source = dbVal ? 'db' : envVal ? 'env' : 'none';
 
-    res.json({ success: true, data: masked });
+      let displayValue = '';
+      if (hasValue) {
+        if (NON_SECRET_KEYS.includes(key)) {
+          displayValue = value;
+        } else {
+          displayValue = value.length > 8 ? '••••••••' + value.slice(-4) : '••••';
+        }
+      }
+
+      return { key, value: displayValue, hasValue, source };
+    });
+
+    res.json({ success: true, data: result });
   } catch (err: any) {
     res.status(500).json({ success: false, error: err?.message });
   }
