@@ -97,4 +97,73 @@ router.post('/upload', upload.single('video'), async (req: AuthRequest, res: Res
   }
 });
 
+// Sync clips from local processing (local-clipper.py uploads here)
+const syncUpload = multer({ storage: diskStorage, limits: { fileSize: 500 * 1024 * 1024 } });
+const syncFields = syncUpload.fields([
+  { name: 'video', maxCount: 1 },
+  { name: 'srt', maxCount: 1 },
+  { name: 'ass', maxCount: 1 },
+]);
+
+router.post('/sync', syncFields, async (req: AuthRequest, res: Response) => {
+  try {
+    const userId = await resolveOwnerId(req.userId!);
+    const metadata = JSON.parse(req.body?.metadata || '{}');
+    const files = req.files as Record<string, Express.Multer.File[]>;
+
+    // Find or create the VideoClip record
+    let videoClip = await prisma.videoClip.findFirst({
+      where: { userId, sourceUrl: req.body?.sourceUrl || 'local://' },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (!videoClip) {
+      videoClip = await prisma.videoClip.create({
+        data: {
+          sourceUrl: metadata.sourceUrl || 'local://',
+          title: metadata.title || 'Local clip',
+          language: metadata.language,
+          duration: metadata.duration,
+          status: 'READY',
+          moments: metadata.moments || [],
+          userId,
+        },
+      });
+    }
+
+    // Upload files to MinIO
+    const { uploadFile: uploadToStorage } = await import('../services/storage.service');
+    const clipData: any = { ...metadata };
+
+    if (files.video?.[0]) {
+      const buffer = fs.readFileSync(files.video[0].path);
+      clipData.url = await uploadToStorage(buffer, 'video/mp4', files.video[0].originalname);
+      fs.unlinkSync(files.video[0].path);
+    }
+    if (files.srt?.[0]) {
+      const buffer = fs.readFileSync(files.srt[0].path);
+      clipData.srtUrl = await uploadToStorage(buffer, 'text/plain', files.srt[0].originalname);
+      fs.unlinkSync(files.srt[0].path);
+    }
+    if (files.ass?.[0]) {
+      const buffer = fs.readFileSync(files.ass[0].path);
+      clipData.assUrl = await uploadToStorage(buffer, 'text/plain', files.ass[0].originalname);
+      fs.unlinkSync(files.ass[0].path);
+    }
+
+    // Append clip to existing clips array
+    const existingClips = (videoClip.clips as any[]) || [];
+    existingClips.push(clipData);
+
+    await prisma.videoClip.update({
+      where: { id: videoClip.id },
+      data: { status: 'READY', clips: existingClips },
+    });
+
+    res.json({ success: true, data: { id: videoClip.id, clipIndex: existingClips.length } });
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: err?.message });
+  }
+});
+
 export default router;
