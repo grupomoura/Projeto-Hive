@@ -1,37 +1,25 @@
 services:
-  minio:
-    image: minio/minio:latest
-    command: server /data --console-address ":9001"
-    environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
-    ports:
-      - '9000:9000'
-      - '9001:9001'
-    volumes:
-      - miniodata:/data
-    restart: unless-stopped
-    healthcheck:
-      test: ['CMD', 'mc', 'ready', 'local']
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 10s
-
   api:
     build:
       context: .
       dockerfile: packages/api/Dockerfile
-    ports:
-      - '3001:3001'
     environment:
       DATABASE_URL: ${DATABASE_URL}
       REDIS_URL: ${REDIS_URL}
-    volumes:
-      - shared-data:/app/shared
-    depends_on:
-      minio:
-        condition: service_healthy
+      NODE_ENV: production
+      PORT: '3001'
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT:-openhive-minio}
+      MINIO_PORT: '9000'
+      MINIO_USE_SSL: 'false'
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin}
+      MINIO_BUCKET: ${MINIO_BUCKET:-instapost-images}
+      MINIO_PUBLIC_URL: ${MINIO_PUBLIC_URL:-http://localhost:9000}
+      JWT_SECRET: ${JWT_SECRET:-changeme}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN:-changeme}
+      NANO_BANANA_PROVIDER: ${NANO_BANANA_PROVIDER:-google}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
     restart: unless-stopped
     healthcheck:
       test: ['CMD', 'wget', '-qO-', 'http://localhost:3001/api/health']
@@ -44,11 +32,9 @@ services:
     build:
       context: .
       dockerfile: packages/web/Dockerfile
-    ports:
-      - '3000:3000'
-    depends_on:
-      api:
-        condition: service_healthy
+    environment:
+      API_INTERNAL_URL: http://api:3001
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-}
     restart: unless-stopped
 
   telegram-bot:
@@ -57,7 +43,9 @@ services:
       dockerfile: packages/bot/Dockerfile
     environment:
       API_URL: http://api:3001
-      API_TOKEN: changeme
+      API_TOKEN: ${INTERNAL_SERVICE_TOKEN:-changeme}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_ALLOWED_CHAT_IDS: ${TELEGRAM_ALLOWED_CHAT_IDS:-}
     depends_on:
       api:
         condition: service_healthy
@@ -67,41 +55,10 @@ services:
     build:
       context: .
       dockerfile: packages/mcp/Dockerfile
-    ports:
-      - '3002:3002'
+    environment:
+      API_URL: http://api:3001
+      API_TOKEN: ${INTERNAL_SERVICE_TOKEN:-changeme}
     depends_on:
       api:
         condition: service_healthy
     restart: unless-stopped
-
-  video-worker:
-    build:
-      context: .
-      dockerfile: Dockerfile.video
-    environment:
-      DATABASE_URL: ${DATABASE_URL}
-      REDIS_URL: ${REDIS_URL}
-      MINIO_ENDPOINT: minio
-      MINIO_PORT: '9000'
-      MINIO_ACCESS_KEY: minioadmin
-      MINIO_SECRET_KEY: minioadmin
-      MINIO_USE_SSL: 'false'
-      MINIO_BUCKET: instapost-images
-      MINIO_PUBLIC_URL: http://localhost:9000
-      SCRIPTS_DIR: /app
-      YT_COOKIES_PATH: /app/shared/cookies.txt
-    volumes:
-      - shared-data:/app/shared
-    depends_on:
-      minio:
-        condition: service_healthy
-    restart: unless-stopped
-
-volumes:
-  miniodata:
-  shared-data:
-
-networks:
-  default:
-    name: coolify
-    external: true
