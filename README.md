@@ -466,25 +466,35 @@ Voce nao precisa criar cada servico manualmente — o Docker Compose faz tudo.
 
 ### Passo 3: Configurar variaveis de ambiente
 
-Clique em **Ambiente** no menu lateral. Apague tudo que estiver la e cole apenas isto (trocando cada `CHANGE_ME` por uma senha inventada por voce):
+Clique em **Ambiente** no menu lateral. **Apague tudo** que o Easypanel colocou la (ele preenche automaticamente com valores de exemplo, ignore tudo). Cole **apenas** isto:
 
 ```bash
-DB_PASSWORD=CHANGE_ME
-REDIS_PASSWORD=CHANGE_ME
-MINIO_SECRET_KEY=CHANGE_ME
-JWT_SECRET=CHANGE_ME
-INTERNAL_SERVICE_TOKEN=CHANGE_ME
+DB_PASSWORD=MinhaSenh4Forte1
+REDIS_PASSWORD=MinhaSenh4Forte2
+MINIO_SECRET_KEY=MinhaSenh4Forte3
+JWT_SECRET=MinhaSenh4Forte4
+INTERNAL_SERVICE_TOKEN=MinhaSenh4Forte5
 ```
 
-**So essas 5 senhas.** Nao precisa colocar Gemini, Instagram, Telegram, dominios nem nada mais aqui. Tudo isso voce configura depois pela interface web do OpenHive.
+Troque as senhas de exemplo acima por senhas suas. Pode inventar qualquer coisa, so nao use `@`, `#` ou espacos.
+
+**So essas 5 senhas e mais nada.** Nao coloque dominios, URLs, Gemini, Telegram nem nada mais.
+
+> **Como as senhas funcionam?** Voce inventa uma senha para `DB_PASSWORD` e o Docker Compose automaticamente usa essa mesma senha para criar o banco de dados E para a API conectar nele. Voce nao precisa configurar o Postgres separadamente — o Compose cuida de tudo. O mesmo vale para `REDIS_PASSWORD` e `MINIO_SECRET_KEY`.
+
+> **E o Gemini, Instagram, Telegram?** Voce configura **depois** pela interface web do OpenHive (menu Configuracoes). Nao precisa colocar nas variaveis de ambiente.
+
+> **E o FRONTEND_URL e MINIO_PUBLIC_URL?** Voce configura **depois** do primeiro deploy, quando o Easypanel gerar as URLs (Passo 5 e 6).
 
 Clique **Salvar**.
 
 ### Passo 4: Primeiro deploy
 
-1. Clique em **Implantar** (botao verde)
-2. Aguarde ~10 minutos (ele vai buildar as imagens Docker)
-3. Quando todos os servicos aparecerem como **Running**, esta pronto
+1. Clique em **Implantar** (botao verde no topo)
+2. Aguarde ~10 minutos (ele vai buildar as imagens Docker — e normal demorar)
+3. Quando os servicos aparecerem como **Running**, esta pronto
+
+> **O app ja funciona neste ponto**, so as imagens nao vao carregar ate voce configurar os dominios nos proximos passos.
 
 ### Passo 5: Configurar dominios
 
