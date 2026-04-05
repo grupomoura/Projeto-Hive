@@ -71,25 +71,80 @@ Crie posts com imagens e legendas geradas por IA, agende publicacoes, extraia cl
 
 ---
 
+## Como instalar
+
+O OpenHive usa **Docker Compose** em todos os cenarios. Escolha a opcao que se encaixa no seu caso:
+
+| Cenario | O que acontece | Arquivo |
+|---------|---------------|---------|
+| **Desenvolvimento local** | Docker Compose sobe o banco, cache e storage. A aplicacao roda com `npm run dev`. | `docker-compose.yml` |
+| **VPS com SSH** | Docker Compose sobe **tudo** (infra + app) com um unico comando. | `docker-compose.production.yml` |
+| **Coolify** | Voce aponta o repo e o Coolify usa o Docker Compose pra buildar e rodar tudo. | `docker-compose.prod.yml` |
+| **Easypanel** | Voce cria cada servico no painel apontando pros Dockerfiles do repo. | Dockerfiles individuais |
+
+> **Resumo:** em todos os casos voce precisa de Docker. A unica diferenca e se voce roda `docker compose` direto no terminal ou se uma plataforma (Coolify/Easypanel) faz isso por voce.
+
+---
+
 ## Instalacao Local (Desenvolvimento)
 
 ### Pre-requisitos
 
-- Node.js 22 LTS
-- Docker e Docker Compose
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (ja inclui Docker Compose)
+- [Node.js 22 LTS](https://nodejs.org/) (recomendado via [fnm](https://github.com/Schniz/fnm) ou [nvm](https://github.com/nvm-sh/nvm))
 - Git
+
+> **Por que Docker?** O Docker Compose sobe automaticamente o banco de dados (PostgreSQL), cache (Redis) e storage de imagens (MinIO). Voce nao precisa instalar nenhum desses manualmente.
 
 ### Passo a passo
 
+#### 1. Clone o repositorio
+
 ```bash
-# 1. Clone
 git clone https://github.com/NetoNetoArreche/instapost.git
 cd instapost
+```
 
-# 2. Setup automatico (gera .env, sobe Postgres/Redis/MinIO, instala deps, roda migrations, cria admin)
-bash setup.sh
+#### 2. Configure o ambiente
 
-# 3. Inicie todos os servicos em dev
+```bash
+cp .env.example .env
+```
+
+Abra o `.env` e substitua os valores `CHANGE_ME` por senhas seguras (ou use o setup automatico no passo abaixo).
+
+#### 3. Suba a infraestrutura com Docker Compose
+
+```bash
+docker compose up -d
+```
+
+Isso inicia 3 containers:
+
+| Container | Servico | Porta |
+|-----------|---------|-------|
+| `instapost-postgres` | PostgreSQL 16 | 5433 (mapeada de 5432 interna) |
+| `instapost-redis` | Redis 7 | 6379 |
+| `instapost-minio` | MinIO (S3) | 9000 (API) / 9001 (Console) |
+
+Verifique se estao rodando:
+
+```bash
+docker compose ps
+```
+
+Os 3 devem aparecer como **running (healthy)**.
+
+#### 4. Instale dependencias e rode migrations
+
+```bash
+npm install
+npx prisma migrate deploy --schema=packages/api/prisma/schema.prisma
+```
+
+#### 5. Inicie a aplicacao
+
+```bash
 npm run dev
 ```
 
@@ -99,26 +154,39 @@ Acesse:
 - **MCP**: http://localhost:3002/mcp
 - **MinIO Console**: http://localhost:9001
 
-Login padrao: `admin@instapost.local` / `admin123` (troque depois!)
+#### 6. Crie sua conta
 
-### Setup manual (se preferir)
+Abra http://localhost:3000, clique em **Registrar** e crie sua conta. O primeiro usuario criado sera o Owner.
+
+### Setup automatico (alternativa)
+
+Se preferir, o script `setup.sh` faz tudo de uma vez (gera .env com secrets aleatorios, sobe Docker, instala deps, roda migrations e cria usuario admin):
 
 ```bash
-# 1. Copie e edite o .env
-cp .env.example .env
-# Edite o .env e preencha os valores CHANGE_ME
+bash setup.sh
+```
 
-# 2. Suba a infraestrutura
-docker compose up -d
+Login padrao: `admin@instapost.local` / `admin123` (troque depois!)
 
-# 3. Instale dependencias
-npm install
+### Comandos uteis do Docker Compose
 
-# 4. Rode migrations
-npx prisma migrate deploy --schema=packages/api/prisma/schema.prisma
+```bash
+# Ver status dos containers
+docker compose ps
 
-# 5. Inicie
-npm run dev
+# Ver logs de um servico especifico
+docker compose logs postgres
+docker compose logs redis
+docker compose logs minio
+
+# Parar tudo (dados persistem nos volumes)
+docker compose down
+
+# Parar e apagar todos os dados (recomecar do zero)
+docker compose down -v
+
+# Reiniciar um servico
+docker compose restart postgres
 ```
 
 ### Renderer Service (para carrosseis HTML)
@@ -129,43 +197,90 @@ O renderer e necessario para a funcionalidade de carrossel com HTML/CSS/Tailwind
 docker compose -f docker-compose.production.yml up renderer -d
 ```
 
-Ou rode manualmente:
-
-```bash
-cd scripts/renderer
-npm init -y && npm install puppeteer-core express
-# Requer Chromium instalado no sistema
-node server.js
-```
-
 ---
 
 ## Instalacao via Docker Compose (VPS com SSH)
 
-Para VPS com acesso SSH direto (sem Coolify/Easypanel):
+Para VPS com acesso SSH direto (sem Coolify/Easypanel). O Docker Compose sobe **tudo** — infra e aplicacao — em containers.
+
+### Pre-requisitos
+
+- VPS Ubuntu 22+ (minimo 2GB RAM)
+- Docker e Docker Compose instalados ([como instalar Docker no Ubuntu](https://docs.docker.com/engine/install/ubuntu/))
+- Git
+
+### O que o Docker Compose cria
+
+O arquivo `docker-compose.production.yml` sobe **8 containers**:
+
+| Container | Servico | Porta exposta |
+|-----------|---------|---------------|
+| `instapost-postgres` | PostgreSQL 16 (banco de dados) | interna (5432) |
+| `instapost-redis` | Redis 7 (filas e cache) | interna (6379) |
+| `instapost-minio` | MinIO (storage S3 para imagens) | 9000 / 9001 |
+| `instapost-api` | API Express (backend) | 3001 |
+| `instapost-web` | Next.js (frontend) | 3000 |
+| `instapost-bot` | Telegram Bot | - |
+| `instapost-mcp` | MCP Server (26 tools) | 3002 |
+| `renderer` | Puppeteer (HTML para PNG) | 3003 |
+
+### Passo a passo
+
+#### 1. Clone e rode o setup
 
 ```bash
-# 1. Clone
 git clone https://github.com/NetoNetoArreche/instapost.git
 cd instapost
-
-# 2. Setup producao (gera secrets, sobe TUDO em Docker, roda migrations, cria admin)
 bash setup.sh --production
 ```
 
-Isso cria tudo automaticamente com `docker-compose.production.yml`:
-- PostgreSQL, Redis, MinIO (infraestrutura)
-- API + Video Worker, Web, Bot, MCP Server, Renderer (aplicacao)
+O `setup.sh --production`:
+- Gera o `.env` com secrets aleatorios
+- Roda `docker compose -f docker-compose.production.yml up -d` (builda e sobe tudo)
+- Executa migrations do banco dentro do container da API
+- Cria o usuario admin
 
-Acesse `http://SEU_IP:3000` e faca login com:
-- Email: `admin@instapost.local`
-- Senha: `admin123` (troque depois!)
+#### 2. Verifique se esta tudo rodando
 
-URL do MCP: `http://SEU_IP:3002/mcp`
+```bash
+docker compose -f docker-compose.production.yml ps
+```
+
+Todos os containers devem aparecer como **running**.
+
+#### 3. Acesse
+
+- **Web**: `http://SEU_IP:3000`
+- **API**: `http://SEU_IP:3001`
+- **MCP**: `http://SEU_IP:3002/mcp`
+- **MinIO Console**: `http://SEU_IP:9001`
+
+Login padrao: `admin@instapost.local` / `admin123` (troque depois!)
+
+### Comandos uteis (producao)
+
+```bash
+# Ver status
+docker compose -f docker-compose.production.yml ps
+
+# Ver logs de um servico
+docker compose -f docker-compose.production.yml logs api
+docker compose -f docker-compose.production.yml logs web
+
+# Reiniciar tudo
+docker compose -f docker-compose.production.yml restart
+
+# Atualizar para nova versao
+git pull
+docker compose -f docker-compose.production.yml up -d --build
+
+# Parar tudo (dados persistem)
+docker compose -f docker-compose.production.yml down
+```
 
 ### Configurar dominio com proxy reverso
 
-Use Nginx ou Caddy na frente dos servicos:
+Use Nginx ou Caddy na frente dos containers:
 
 ```nginx
 # /etc/nginx/sites-available/openhive
@@ -187,27 +302,50 @@ server {
 }
 ```
 
-Apos configurar o dominio, atualize no `.env`:
-```
+Apos configurar o dominio, atualize no `.env` e reinicie:
+```bash
+# Edite o .env
 FRONTEND_URL=https://app.seudominio.com
 MINIO_PUBLIC_URL=https://s3.seudominio.com
+
+# Reinicie para aplicar
+docker compose -f docker-compose.production.yml up -d
 ```
 
 ---
 
 ## Instalacao no Coolify
 
+O Coolify e uma plataforma self-hosted que gerencia Docker Compose por voce. Ele le o arquivo `docker-compose.prod.yml` do repositorio, builda as imagens e sobe todos os containers automaticamente.
+
 ### Pre-requisitos
 
 - VPS Ubuntu 22+ (minimo 2GB RAM)
 - Coolify instalado ([como instalar](https://coolify.io/docs/installation))
+
+### O que o Coolify faz por voce
+
+Ao apontar o Coolify para este repositorio, ele usa o `docker-compose.prod.yml` que sobe:
+
+| Servico no Compose | O que e | Porta |
+|---------------------|---------|-------|
+| `postgres` | PostgreSQL 16 | interna |
+| `redis` | Redis 7 (com senha) | interna |
+| `minio` | MinIO (storage S3) | 9000 / 9001 |
+| `api` | API Express (backend) | 3001 |
+| `web` | Next.js (frontend) | 3000 |
+| `telegram-bot` | Telegram Bot | - |
+| `mcp-server` | MCP Server (26 tools) | 3002 |
+| `renderer` | Puppeteer (HTML para PNG) | 3003 |
+
+O Coolify cuida de: build das imagens, SSL automatico, dominios, restart e logs.
 
 ### Passo 1: Criar o projeto
 
 1. Acesse o painel do Coolify (ex: `http://sua-vps:8000`)
 2. **Projects** > **Add New Project** > nomeie "OpenHive"
 
-### Passo 2: Adicionar o servico
+### Passo 2: Adicionar como Docker Compose
 
 1. Dentro do projeto, clique **+ New** > **Resource**
 2. Selecione **Docker Compose**
@@ -218,21 +356,32 @@ MINIO_PUBLIC_URL=https://s3.seudominio.com
 7. Base Directory: `/`
 8. Clique **Save**
 
+> **Importante:** o Coolify vai ler o `docker-compose.prod.yml` e criar todos os servicos automaticamente. Voce nao precisa criar containers manualmente.
+
 ### Passo 3: Configurar variaveis de ambiente
 
-Va em **Environment Variables** e adicione:
+Va em **Environment Variables** e adicione (gere senhas fortes para cada `CHANGE_ME`):
 
-```
-DB_PASSWORD=senha_forte_aleatoria
-REDIS_PASSWORD=outra_senha_forte
-JWT_SECRET=openssl_rand_hex_32
-INTERNAL_SERVICE_TOKEN=openssl_rand_hex_24
+```bash
+# Senhas da infraestrutura (gere com: openssl rand -hex 16)
+DB_PASSWORD=CHANGE_ME
+REDIS_PASSWORD=CHANGE_ME
 MINIO_ACCESS_KEY=minioadmin
-MINIO_SECRET_KEY=senha_minio_forte
-MINIO_PUBLIC_URL=https://s3.seudominio.com
+MINIO_SECRET_KEY=CHANGE_ME
+
+# Seguranca (gere com: openssl rand -hex 32)
+JWT_SECRET=CHANGE_ME
+INTERNAL_SERVICE_TOKEN=CHANGE_ME
+
+# URLs (ajuste para seus dominios)
 FRONTEND_URL=https://app.seudominio.com
-NANO_BANANA_API_KEY=sua_chave_gemini
+MINIO_PUBLIC_URL=https://s3.seudominio.com
+
+# Google Gemini (para gerar imagens/legendas)
+NANO_BANANA_API_KEY=sua_chave_do_google_ai_studio
 NANO_BANANA_PROVIDER=google
+
+# Telegram Bot (opcional)
 TELEGRAM_BOT_TOKEN=token_do_botfather
 TELEGRAM_ALLOWED_CHAT_IDS=seu_chat_id
 ```
@@ -241,87 +390,126 @@ TELEGRAM_ALLOWED_CHAT_IDS=seu_chat_id
 
 Em **Configuration** > **General**, configure dominios para cada servico:
 
-- **web**: `app.seudominio.com` (ou Generate Domain)
-- **api**: `api.seudominio.com`
-- **mcp-server**: `mcp.seudominio.com`
-- **minio**: `s3.seudominio.com` (porta 9000)
+| Servico | Dominio sugerido | Porta |
+|---------|-----------------|-------|
+| **web** | `app.seudominio.com` | 3000 |
+| **api** | `api.seudominio.com` | 3001 |
+| **mcp-server** | `mcp.seudominio.com` | 3002 |
+| **minio** | `s3.seudominio.com` | 9000 |
 
-Anote as URLs geradas.
+O Coolify gera SSL automaticamente se voce tiver um dominio configurado.
 
 ### Passo 5: Deploy
 
 1. Clique **Deploy**
-2. Aguarde ~10 minutos no primeiro deploy
+2. Aguarde ~10 minutos no primeiro deploy (build das imagens)
 3. Quando aparecer **Running (healthy)**, esta pronto
 
 ### Passo 6: Acessar
 
-1. Abra a URL do **web** no navegador
+1. Abra `https://app.seudominio.com`
 2. Clique **Registrar** e crie sua conta (primeiro usuario = Owner)
-3. Va em **Configuracoes** e configure as integracoes
+3. Va em **Configuracoes** e configure as integracoes (Gemini, Instagram, etc)
+
+URL do MCP: `https://mcp.seudominio.com/mcp`
 
 ---
 
 ## Instalacao no Easypanel
+
+O Easypanel e um painel de controle self-hosted para Docker. Diferente do Coolify, ele nao le Docker Compose diretamente — voce cria cada servico individualmente apontando para os Dockerfiles do repositorio. O Easypanel cuida do build, deploy, SSL e dominios.
 
 ### Pre-requisitos
 
 - VPS Ubuntu 22+ (minimo 2GB RAM)
 - Easypanel instalado ([como instalar](https://easypanel.io/docs/get-started))
 
+### Visao geral dos servicos
+
+Voce vai criar **7 servicos** no Easypanel, cada um com seu Dockerfile:
+
+| Servico | Tipo no Easypanel | Dockerfile | Porta | Dominio |
+|---------|-------------------|------------|-------|---------|
+| Postgres | Database > Postgres 16 | (imagem pronta) | interno | - |
+| Redis | Database > Redis | (imagem pronta) | interno | - |
+| MinIO | App > Docker Image | (imagem pronta) | 9000/9001 | `s3.seudominio.com` |
+| API | App > Github | `packages/api/Dockerfile` | 3001 | `api.seudominio.com` |
+| Web | App > Github | `packages/web/Dockerfile` | 3000 | `app.seudominio.com` |
+| MCP Server | App > Github | `packages/mcp/Dockerfile` | 3002 | `mcp.seudominio.com` |
+| Renderer | App > Github | `Dockerfile.renderer` | 3003 | - |
+| Bot (opcional) | App > Github | `packages/bot/Dockerfile` | - | - |
+
 ### Passo 1: Criar projeto e infraestrutura
 
 1. Acesse o Easypanel > **Create Project** > nome: "openhive"
 
-2. **Postgres**: + Service > Databases > Postgres 16. Anote a connection string.
+2. **Postgres**: + Service > Databases > Postgres 16
+   - Anote a connection string (ex: `postgres://user:pass@postgres.openhive.internal:5432/db`)
 
-3. **Redis**: + Service > Databases > Redis. Anote a connection string.
+3. **Redis**: + Service > Databases > Redis
+   - Anote a connection string (ex: `redis://default:pass@redis.openhive.internal:6379`)
 
 4. **MinIO**: + Service > App > Docker Image
    - Image: `minio/minio:latest`
    - Command: `server /data --console-address :9001`
    - Portas: `9000` e `9001`
-   - Env: `MINIO_ROOT_USER=minioadmin`, `MINIO_ROOT_PASSWORD=senha_forte`
+   - Env: `MINIO_ROOT_USER=minioadmin`, `MINIO_ROOT_PASSWORD=CHANGE_ME`
    - Configure dominio para porta 9000 (ex: `s3.seudominio.com`)
 
-### Passo 2: Servico API
+### Passo 2: Servico API (backend)
 
 1. + Service > App > Github
 2. Repo: `NetoNetoArreche/instapost`, Branch: `main`
 3. Dockerfile: `packages/api/Dockerfile`
 4. Porta: `3001`
-5. Env vars:
+5. Configure dominio: `api.seudominio.com`
+6. Env vars (substitua os valores entre `< >` pelos dados reais do Passo 1):
 
-```
+```bash
 NODE_ENV=production
 PORT=3001
-DATABASE_URL=postgres://user:pass@postgres.openhive.internal:5432/db
-REDIS_URL=redis://default:pass@redis.openhive.internal:6379
-JWT_SECRET=gere_hex_32_aleatorio
+
+# Banco - use a connection string do Postgres criado no Passo 1
+DATABASE_URL=postgres://<user>:<pass>@postgres.openhive.internal:5432/<db>
+
+# Redis - use a connection string do Redis criado no Passo 1
+REDIS_URL=redis://default:<pass>@redis.openhive.internal:6379
+
+# Seguranca (gere com: openssl rand -hex 32)
+JWT_SECRET=CHANGE_ME
 JWT_EXPIRES_IN=7d
-INTERNAL_SERVICE_TOKEN=gere_hex_24_aleatorio
+INTERNAL_SERVICE_TOKEN=CHANGE_ME
+
+# MinIO - use a senha definida no Passo 1
 MINIO_ENDPOINT=minio.openhive.internal
 MINIO_PORT=9000
 MINIO_USE_SSL=false
 MINIO_ACCESS_KEY=minioadmin
-MINIO_SECRET_KEY=senha_forte
+MINIO_SECRET_KEY=CHANGE_ME
 MINIO_PUBLIC_URL=https://s3.seudominio.com
 MINIO_BUCKET=openhive-images
+
+# URLs
 FRONTEND_URL=https://app.seudominio.com
-NANO_BANANA_API_KEY=sua_chave_gemini
+
+# Google Gemini (gerar imagens/legendas)
+NANO_BANANA_API_KEY=sua_chave_do_google_ai_studio
 NANO_BANANA_PROVIDER=google
 ```
 
-6. Deploy
+7. Deploy
 
-### Passo 3: Servico Web
+### Passo 3: Servico Web (frontend)
 
 1. + Service > App > Github
 2. Repo: `NetoNetoArreche/instapost`, Branch: `main`
 3. Dockerfile: `packages/web/Dockerfile`
 4. Porta: `3000`
-5. Env: `API_INTERNAL_URL=http://api.openhive.internal:3001`
-6. Configure dominio (ex: `app.seudominio.com`)
+5. Configure dominio: `app.seudominio.com`
+6. Env:
+```
+API_INTERNAL_URL=http://api.openhive.internal:3001
+```
 7. Deploy
 
 ### Passo 4: MCP Server
@@ -330,15 +518,15 @@ NANO_BANANA_PROVIDER=google
 2. Repo: `NetoNetoArreche/instapost`, Branch: `main`
 3. Dockerfile: `packages/mcp/Dockerfile`
 4. Porta: `3002`
-5. Env:
+5. Configure dominio: `mcp.seudominio.com`
+6. Env (use o mesmo `INTERNAL_SERVICE_TOKEN` da API):
 ```
 API_URL=http://api.openhive.internal:3001
 API_TOKEN=mesmo_INTERNAL_SERVICE_TOKEN_da_api
 ```
-6. Configure dominio (ex: `mcp.seudominio.com`)
 7. Deploy
 
-### Passo 5: Renderer (necessario para carrosseis HTML)
+### Passo 5: Renderer (para carrosseis HTML)
 
 1. + Service > App > Github
 2. Repo: `NetoNetoArreche/instapost`, Branch: `main`
@@ -364,9 +552,11 @@ TELEGRAM_ALLOWED_CHAT_IDS=seu_chat_id
 
 ### Passo 7: Acessar
 
-1. Abra a URL do Web
-2. Registre sua conta (primeiro = Owner)
-3. Va em **Configuracoes** e configure integracoes
+1. Abra `https://app.seudominio.com`
+2. Clique **Registrar** e crie sua conta (primeiro usuario = Owner)
+3. Va em **Configuracoes** e configure integracoes (Gemini, Instagram, etc)
+
+URL do MCP: `https://mcp.seudominio.com/mcp`
 
 ---
 
