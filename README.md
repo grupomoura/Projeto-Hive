@@ -478,13 +478,20 @@ INTERNAL_SERVICE_TOKEN=MinhaSenh4Forte5
 
 Troque as senhas de exemplo acima por senhas suas. Pode inventar qualquer coisa, so nao use `@`, `#` ou espacos.
 
-**So essas 5 senhas e mais nada.** Nao coloque dominios, URLs, Gemini, Telegram nem nada mais.
+**So essas 5 senhas e mais nada.**
 
-> **Como as senhas funcionam?** Voce inventa uma senha para `DB_PASSWORD` e o Docker Compose automaticamente usa essa mesma senha para criar o banco de dados E para a API conectar nele. Voce nao precisa configurar o Postgres separadamente — o Compose cuida de tudo. O mesmo vale para `REDIS_PASSWORD` e `MINIO_SECRET_KEY`.
+**NAO COLOQUE nenhuma destas variaveis agora (elas vem DEPOIS):**
+- ~~FRONTEND_URL~~ — voce adiciona no **Passo 6**, depois que o Easypanel gerar a URL
+- ~~MINIO_PUBLIC_URL~~ — voce adiciona no **Passo 6**, depois que o Easypanel gerar a URL
+- ~~NANO_BANANA_API_KEY~~ — voce configura pela **interface web** do OpenHive (menu Configuracoes), nao aqui
+- ~~NANO_BANANA_PROVIDER~~ — mesmo, pela interface web
+- ~~TELEGRAM_BOT_TOKEN~~ — mesmo, pela interface web
+- ~~INSTAGRAM_ACCESS_TOKEN~~ — mesmo, pela interface web
+- ~~DATABASE_URL~~ — o Docker Compose monta sozinho usando DB_PASSWORD
+- ~~REDIS_URL~~ — o Docker Compose monta sozinho usando REDIS_PASSWORD
+- ~~MINIO_ENDPOINT~~ — o Docker Compose configura sozinho
 
-> **E o Gemini, Instagram, Telegram?** Voce configura **depois** pela interface web do OpenHive (menu Configuracoes). Nao precisa colocar nas variaveis de ambiente.
-
-> **E o FRONTEND_URL e MINIO_PUBLIC_URL?** Voce configura **depois** do primeiro deploy, quando o Easypanel gerar as URLs (Passo 5 e 6).
+> **Como as senhas funcionam?** Voce inventa uma senha para `DB_PASSWORD` e o Docker Compose automaticamente usa essa mesma senha para criar o banco Postgres E para a API conectar nele. Voce nao precisa saber a connection string nem configurar nada separado — o Compose monta tudo sozinho internamente. O mesmo vale para `REDIS_PASSWORD` e `MINIO_SECRET_KEY`.
 
 Clique **Salvar**.
 
