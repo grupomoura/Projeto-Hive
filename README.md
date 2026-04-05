@@ -360,44 +360,44 @@ O Coolify cuida de: build das imagens, SSL automatico, dominios, restart e logs.
 
 ### Passo 3: Configurar variaveis de ambiente
 
-Va em **Environment Variables** e adicione (gere senhas fortes para cada `CHANGE_ME`):
+Va em **Environment Variables** e adicione. Troque cada `CHANGE_ME` por uma senha forte (pode inventar qualquer senha, so nao use caracteres especiais como `@` ou `#`):
 
 ```bash
-# Senhas da infraestrutura (gere com: openssl rand -hex 16)
+# === Senhas (invente senhas fortes, ex: MinhaSenh4Forte123) ===
 DB_PASSWORD=CHANGE_ME
 REDIS_PASSWORD=CHANGE_ME
 MINIO_ACCESS_KEY=minioadmin
 MINIO_SECRET_KEY=CHANGE_ME
-
-# Seguranca (gere com: openssl rand -hex 32)
 JWT_SECRET=CHANGE_ME
 INTERNAL_SERVICE_TOKEN=CHANGE_ME
-
-# URLs (ajuste para seus dominios)
-FRONTEND_URL=https://app.seudominio.com
-MINIO_PUBLIC_URL=https://s3.seudominio.com
-
-# Google Gemini (para gerar imagens/legendas)
-NANO_BANANA_API_KEY=sua_chave_do_google_ai_studio
-NANO_BANANA_PROVIDER=google
-
-# Telegram Bot (opcional)
-TELEGRAM_BOT_TOKEN=token_do_botfather
-TELEGRAM_ALLOWED_CHAT_IDS=seu_chat_id
 ```
+
+**So isso!** As demais configuracoes (Google Gemini, Instagram, Telegram) voce faz depois pela interface web em **Configuracoes**, sem mexer em variaveis de ambiente.
+
+> **E os dominios?** As variaveis `FRONTEND_URL` e `MINIO_PUBLIC_URL` so sao necessarias se voce tiver um dominio proprio (ex: `seusite.com`). Se nao tiver, o Coolify gera URLs automaticas pra voce — configure depois do primeiro deploy.
 
 ### Passo 4: Configurar dominios
 
 Em **Configuration** > **General**, configure dominios para cada servico:
 
-| Servico | Dominio sugerido | Porta |
-|---------|-----------------|-------|
-| **web** | `app.seudominio.com` | 3000 |
-| **api** | `api.seudominio.com` | 3001 |
-| **mcp-server** | `mcp.seudominio.com` | 3002 |
-| **minio** | `s3.seudominio.com` | 9000 |
+**Se voce tem um dominio proprio** (ex: `seusite.com`):
 
-O Coolify gera SSL automaticamente se voce tiver um dominio configurado.
+| Servico | Dominio | Porta |
+|---------|---------|-------|
+| **web** | `app.seusite.com` | 3000 |
+| **api** | `api.seusite.com` | 3001 |
+| **mcp-server** | `mcp.seusite.com` | 3002 |
+| **minio** | `s3.seusite.com` | 9000 |
+
+**Se voce NAO tem dominio**: clique em **Generate Domain** no Coolify — ele cria URLs automaticas tipo `openhive-web-abc123.coolify.io`. Funciona igual, so nao fica bonito.
+
+Apos configurar os dominios, volte em **Environment Variables** e adicione:
+```bash
+FRONTEND_URL=https://URL_DO_WEB_AQUI
+MINIO_PUBLIC_URL=https://URL_DO_MINIO_AQUI
+```
+
+O Coolify gera SSL (HTTPS) automaticamente.
 
 ### Passo 5: Deploy
 
@@ -407,11 +407,12 @@ O Coolify gera SSL automaticamente se voce tiver um dominio configurado.
 
 ### Passo 6: Acessar
 
-1. Abra `https://app.seudominio.com`
+1. Abra a URL do **web** no navegador
 2. Clique **Registrar** e crie sua conta (primeiro usuario = Owner)
-3. Va em **Configuracoes** e configure as integracoes (Gemini, Instagram, etc)
-
-URL do MCP: `https://mcp.seudominio.com/mcp`
+3. Va em **Configuracoes** no menu lateral e configure:
+   - **Geracao de Imagens** — cole sua chave do Google Gemini
+   - **Instagram** — conecte sua conta (opcional)
+   - **Telegram Bot** — cole o token do BotFather (opcional)
 
 ---
 
@@ -460,52 +461,47 @@ Voce nao precisa criar cada servico manualmente — o Docker Compose faz tudo.
 
 ### Passo 3: Configurar variaveis de ambiente
 
-Va em **Environment Variables** do servico Docker Compose e adicione:
+Va em **Environment Variables** do servico Docker Compose e adicione. Troque cada `CHANGE_ME` por uma senha forte (pode inventar qualquer senha, so nao use caracteres especiais como `@` ou `#`):
 
 ```bash
-# === Senhas da infraestrutura ===
-# Gere senhas fortes (ex: openssl rand -hex 16)
+# === Senhas (invente senhas fortes, ex: MinhaSenh4Forte123) ===
 DB_PASSWORD=CHANGE_ME
 REDIS_PASSWORD=CHANGE_ME
 MINIO_ACCESS_KEY=minioadmin
 MINIO_SECRET_KEY=CHANGE_ME
-
-# === Seguranca ===
-# Gere com: openssl rand -hex 32
 JWT_SECRET=CHANGE_ME
 INTERNAL_SERVICE_TOKEN=CHANGE_ME
-
-# === URLs dos seus dominios ===
-# Ajuste para os dominios que voce vai configurar no Passo 4
-FRONTEND_URL=https://app.seudominio.com
-MINIO_PUBLIC_URL=https://s3.seudominio.com
-
-# === Google Gemini (geracao de imagens e legendas) ===
-# Pegue sua chave em: https://aistudio.google.com/
-NANO_BANANA_API_KEY=sua_chave_do_google_ai_studio
-NANO_BANANA_PROVIDER=google
-
-# === Telegram Bot (opcional) ===
-# Crie um bot com @BotFather no Telegram
-TELEGRAM_BOT_TOKEN=token_do_botfather
-TELEGRAM_ALLOWED_CHAT_IDS=seu_chat_id
 ```
+
+**So isso!** As demais configuracoes (Google Gemini, Instagram, Telegram) voce faz depois pela interface web do OpenHive em **Configuracoes**, sem mexer em variaveis de ambiente.
+
+> **E os dominios?** As variaveis `FRONTEND_URL` e `MINIO_PUBLIC_URL` so sao necessarias se voce tiver um dominio proprio. Se nao tiver, o Easypanel gera URLs automaticas — configure depois do primeiro deploy.
 
 ### Passo 4: Configurar dominios
 
-No Easypanel, configure dominios para os servicos que precisam ser acessados externamente:
+No Easypanel, configure dominios para os servicos que precisam ser acessados externamente.
 
-| Servico | Dominio sugerido | Porta do container |
-|---------|------------------|--------------------|
-| **web** | `app.seudominio.com` | 3000 |
-| **api** | `api.seudominio.com` | 3001 |
-| **mcp-server** | `mcp.seudominio.com` | 3002 |
-| **minio** | `s3.seudominio.com` | 9000 |
+**Se voce tem um dominio proprio** (ex: `seusite.com`):
+
+| Servico | Dominio | Porta do container |
+|---------|---------|---------------------|
+| **web** | `app.seusite.com` | 3000 |
+| **api** | `api.seusite.com` | 3001 |
+| **mcp-server** | `mcp.seusite.com` | 3002 |
+| **minio** | `s3.seusite.com` | 9000 |
+
+**Se voce NAO tem dominio**: o Easypanel gera URLs automaticas com o IP da VPS (ex: `http://SEU_IP:3000`). Funciona igual.
 
 Para cada servico:
 1. Clique no servico > **Domains**
-2. Adicione o dominio > marque **HTTPS** (SSL automatico)
+2. Adicione o dominio (ou use o IP) > marque **HTTPS** se tiver dominio
 3. Salve
+
+Apos configurar, volte em **Environment Variables** e adicione:
+```bash
+FRONTEND_URL=https://URL_DO_WEB_AQUI
+MINIO_PUBLIC_URL=https://URL_DO_MINIO_AQUI
+```
 
 ### Passo 5: Deploy
 
@@ -515,11 +511,12 @@ Para cada servico:
 
 ### Passo 6: Acessar
 
-1. Abra `https://app.seudominio.com`
+1. Abra a URL do **web** no navegador
 2. Clique **Registrar** e crie sua conta (primeiro usuario = Owner)
-3. Va em **Configuracoes** e configure as integracoes (Gemini, Instagram, etc)
-
-URL do MCP: `https://mcp.seudominio.com/mcp`
+3. Va em **Configuracoes** no menu lateral e configure:
+   - **Geracao de Imagens** — cole sua chave do Google Gemini
+   - **Instagram** — conecte sua conta (opcional)
+   - **Telegram Bot** — cole o token do BotFather (opcional)
 
 ### Alternativa: criar servicos manualmente
 
@@ -562,8 +559,6 @@ MINIO_SECRET_KEY=CHANGE_ME
 MINIO_PUBLIC_URL=https://s3.seudominio.com
 MINIO_BUCKET=openhive-images
 FRONTEND_URL=https://app.seudominio.com
-NANO_BANANA_API_KEY=sua_chave_gemini
-NANO_BANANA_PROVIDER=google
 ```
 
 #### Web (frontend)
