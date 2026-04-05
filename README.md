@@ -360,57 +360,57 @@ O Coolify cuida de: build das imagens, SSL automatico, dominios, restart e logs.
 
 ### Passo 3: Configurar variaveis de ambiente
 
-Va em **Environment Variables** e adicione. Troque cada `CHANGE_ME` por uma senha forte (pode inventar qualquer senha, so nao use caracteres especiais como `@` ou `#`):
+Va em **Environment Variables**. Apague tudo e cole apenas isto (trocando cada `CHANGE_ME` por uma senha inventada por voce):
 
 ```bash
-# === Senhas (invente senhas fortes, ex: MinhaSenh4Forte123) ===
 DB_PASSWORD=CHANGE_ME
 REDIS_PASSWORD=CHANGE_ME
-MINIO_ACCESS_KEY=minioadmin
 MINIO_SECRET_KEY=CHANGE_ME
 JWT_SECRET=CHANGE_ME
 INTERNAL_SERVICE_TOKEN=CHANGE_ME
 ```
 
-**So isso!** As demais configuracoes (Google Gemini, Instagram, Telegram) voce faz depois pela interface web em **Configuracoes**, sem mexer em variaveis de ambiente.
+**So essas 5 senhas.** Nao precisa colocar Gemini, Instagram, Telegram, dominios nem nada mais aqui. Tudo isso voce configura depois pela interface web do OpenHive.
 
-> **E os dominios?** As variaveis `FRONTEND_URL` e `MINIO_PUBLIC_URL` so sao necessarias se voce tiver um dominio proprio (ex: `seusite.com`). Se nao tiver, o Coolify gera URLs automaticas pra voce — configure depois do primeiro deploy.
+### Passo 4: Primeiro deploy
 
-### Passo 4: Configurar dominios
+1. Clique **Deploy**
+2. Aguarde ~10 minutos (build das imagens)
+3. Quando aparecer **Running (healthy)**, esta pronto
 
-Em **Configuration** > **General**, configure dominios para cada servico:
+### Passo 5: Configurar dominios
 
-**Se voce tem um dominio proprio** (ex: `seusite.com`):
+Agora que esta rodando, configure dominios em **Configuration** > **General**:
 
-| Servico | Dominio | Porta |
-|---------|---------|-------|
-| **web** | `app.seusite.com` | 3000 |
-| **api** | `api.seusite.com` | 3001 |
-| **mcp-server** | `mcp.seusite.com` | 3002 |
-| **minio** | `s3.seusite.com` | 9000 |
+| Servico | Porta | O que e |
+|---------|-------|---------|
+| **web** | 3000 | Dashboard (o que voce acessa no navegador) |
+| **api** | 3001 | Backend (a web precisa dele) |
+| **mcp-server** | 3002 | MCP para IDEs (opcional) |
+| **minio** | 9000 | Storage de imagens |
 
-**Se voce NAO tem dominio**: clique em **Generate Domain** no Coolify — ele cria URLs automaticas tipo `openhive-web-abc123.coolify.io`. Funciona igual, so nao fica bonito.
-
-Apos configurar os dominios, volte em **Environment Variables** e adicione:
-```bash
-FRONTEND_URL=https://URL_DO_WEB_AQUI
-MINIO_PUBLIC_URL=https://URL_DO_MINIO_AQUI
-```
+**Se voce tem dominio**: coloque `app.seusite.com` (web), `api.seusite.com` (api), etc.
+**Se NAO tem**: clique **Generate Domain** — o Coolify cria URLs automaticas.
 
 O Coolify gera SSL (HTTPS) automaticamente.
 
-### Passo 5: Deploy
+### Passo 6: Atualizar as URLs no ambiente
 
-1. Clique **Deploy**
-2. Aguarde ~10 minutos no primeiro deploy (build das imagens)
-3. Quando aparecer **Running (healthy)**, esta pronto
+Volte em **Environment Variables** e adicione estas 2 linhas com as URLs que voce acabou de configurar:
 
-### Passo 6: Acessar
+```bash
+FRONTEND_URL=https://URL_DO_WEB_QUE_VOCE_CONFIGUROU
+MINIO_PUBLIC_URL=https://URL_DO_MINIO_QUE_VOCE_CONFIGUROU
+```
+
+Clique **Save** e depois **Deploy** novamente para aplicar.
+
+### Passo 7: Acessar e configurar
 
 1. Abra a URL do **web** no navegador
 2. Clique **Registrar** e crie sua conta (primeiro usuario = Owner)
-3. Va em **Configuracoes** no menu lateral e configure:
-   - **Geracao de Imagens** — cole sua chave do Google Gemini
+3. Va em **Configuracoes** no menu lateral e configure tudo pela interface:
+   - **Geracao de Imagens** — cole sua chave do Google Gemini ([pegue aqui](https://aistudio.google.com/))
    - **Instagram** — conecte sua conta (opcional)
    - **Telegram Bot** — cole o token do BotFather (opcional)
 
@@ -457,64 +457,71 @@ Voce nao precisa criar cada servico manualmente — o Docker Compose faz tudo.
 6. Docker Compose Path: `docker-compose.prod.yml`
 7. Clique **Save**
 
-> **Isso e tudo!** O Easypanel vai ler o `docker-compose.prod.yml` e criar todos os 8 servicos automaticamente. Voce nao precisa configurar containers manualmente.
+> O Easypanel vai ler o `docker-compose.prod.yml` e criar todos os 8 servicos automaticamente. Voce nao precisa configurar containers manualmente.
 
 ### Passo 3: Configurar variaveis de ambiente
 
-Va em **Environment Variables** do servico Docker Compose e adicione. Troque cada `CHANGE_ME` por uma senha forte (pode inventar qualquer senha, so nao use caracteres especiais como `@` ou `#`):
+Clique em **Ambiente** no menu lateral. Apague tudo que estiver la e cole apenas isto (trocando cada `CHANGE_ME` por uma senha inventada por voce):
 
 ```bash
-# === Senhas (invente senhas fortes, ex: MinhaSenh4Forte123) ===
 DB_PASSWORD=CHANGE_ME
 REDIS_PASSWORD=CHANGE_ME
-MINIO_ACCESS_KEY=minioadmin
 MINIO_SECRET_KEY=CHANGE_ME
 JWT_SECRET=CHANGE_ME
 INTERNAL_SERVICE_TOKEN=CHANGE_ME
 ```
 
-**So isso!** As demais configuracoes (Google Gemini, Instagram, Telegram) voce faz depois pela interface web do OpenHive em **Configuracoes**, sem mexer em variaveis de ambiente.
+**So essas 5 senhas.** Nao precisa colocar Gemini, Instagram, Telegram, dominios nem nada mais aqui. Tudo isso voce configura depois pela interface web do OpenHive.
 
-> **E os dominios?** As variaveis `FRONTEND_URL` e `MINIO_PUBLIC_URL` so sao necessarias se voce tiver um dominio proprio. Se nao tiver, o Easypanel gera URLs automaticas — configure depois do primeiro deploy.
+Clique **Salvar**.
 
-### Passo 4: Configurar dominios
+### Passo 4: Primeiro deploy
 
-No Easypanel, configure dominios para os servicos que precisam ser acessados externamente.
+1. Clique em **Implantar** (botao verde)
+2. Aguarde ~10 minutos (ele vai buildar as imagens Docker)
+3. Quando todos os servicos aparecerem como **Running**, esta pronto
+
+### Passo 5: Configurar dominios
+
+Agora que esta rodando, voce precisa configurar os dominios para conseguir acessar os servicos pelo navegador.
+
+1. Clique em **Dominios** no menu lateral esquerdo
+2. Voce vai ver a lista de servicos. Configure dominio para estes 4:
+
+| Servico | Porta | O que e |
+|---------|-------|---------|
+| **web** | 3000 | Dashboard (o que voce acessa no navegador) |
+| **api** | 3001 | Backend (a web precisa dele) |
+| **mcp-server** | 3002 | MCP para IDEs (opcional) |
+| **minio** | 9000 | Storage de imagens |
 
 **Se voce tem um dominio proprio** (ex: `seusite.com`):
+- Aponte os subdominos no DNS da sua VPS (A record para o IP dela)
+- Coloque: `app.seusite.com` (web), `api.seusite.com` (api), `s3.seusite.com` (minio)
 
-| Servico | Dominio | Porta do container |
-|---------|---------|---------------------|
-| **web** | `app.seusite.com` | 3000 |
-| **api** | `api.seusite.com` | 3001 |
-| **mcp-server** | `mcp.seusite.com` | 3002 |
-| **minio** | `s3.seusite.com` | 9000 |
+**Se voce NAO tem dominio proprio**:
+- O Easypanel gera URLs automaticas com o IP da sua VPS
+- Clique **Generate Domain** em cada servico
 
-**Se voce NAO tem dominio**: o Easypanel gera URLs automaticas com o IP da VPS (ex: `http://SEU_IP:3000`). Funciona igual.
+3. Anote as URLs geradas (ex: `https://app.seusite.com` ou `http://123.45.67.89:3000`)
 
-Para cada servico:
-1. Clique no servico > **Domains**
-2. Adicione o dominio (ou use o IP) > marque **HTTPS** se tiver dominio
-3. Salve
+### Passo 6: Atualizar as URLs no ambiente
 
-Apos configurar, volte em **Environment Variables** e adicione:
+Volte em **Ambiente** e adicione estas 2 linhas com as URLs que voce acabou de configurar:
+
 ```bash
-FRONTEND_URL=https://URL_DO_WEB_AQUI
-MINIO_PUBLIC_URL=https://URL_DO_MINIO_AQUI
+FRONTEND_URL=https://URL_DO_WEB_QUE_VOCE_CONFIGUROU
+MINIO_PUBLIC_URL=https://URL_DO_MINIO_QUE_VOCE_CONFIGUROU
 ```
 
-### Passo 5: Deploy
+Clique **Salvar** e depois **Implantar** novamente para aplicar.
 
-1. Clique **Deploy**
-2. Aguarde ~10 minutos no primeiro deploy (build das imagens Docker)
-3. Quando todos aparecerem como **Running**, esta pronto
-
-### Passo 6: Acessar
+### Passo 7: Acessar e configurar
 
 1. Abra a URL do **web** no navegador
 2. Clique **Registrar** e crie sua conta (primeiro usuario = Owner)
-3. Va em **Configuracoes** no menu lateral e configure:
-   - **Geracao de Imagens** — cole sua chave do Google Gemini
+3. Va em **Configuracoes** no menu lateral e configure tudo pela interface:
+   - **Geracao de Imagens** — cole sua chave do Google Gemini ([pegue aqui](https://aistudio.google.com/))
    - **Instagram** — conecte sua conta (opcional)
    - **Telegram Bot** — cole o token do BotFather (opcional)
 
