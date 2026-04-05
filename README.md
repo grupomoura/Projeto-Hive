@@ -488,50 +488,71 @@ Clique **Salvar**.
 
 ### Passo 5: Configurar dominios
 
-Agora que esta rodando, voce precisa dizer ao Easypanel quais servicos devem ser acessiveis pelo navegador. **Voce NAO precisa ter um dominio proprio** — o Easypanel gera URLs automaticas pra voce.
+Agora que esta rodando, voce precisa criar dominios para acessar cada servico pelo navegador. **Voce NAO precisa ter um dominio proprio** — o Easypanel gera URLs automaticas.
 
 1. Clique em **Dominios** no menu lateral esquerdo
-2. Clique em **Adicionar Dominio** para cada um dos 4 servicos abaixo:
+2. Voce vai ver a tela de dominios. Pode ja ter um dominio generico criado automaticamente — ignore ele por enquanto.
+3. Voce precisa criar **4 dominios**, um para cada servico. Para cada um, faca:
 
-| # | Servico (escolha no dropdown) | Porta (digite) | O que e |
-|---|-------------------------------|-----------------|---------|
-| 1 | **web** | 3000 | Dashboard — o que voce acessa no navegador |
-| 2 | **api** | 3001 | Backend — a web precisa dele pra funcionar |
-| 3 | **minio** | 9000 | Storage — onde as imagens ficam salvas |
-| 4 | **mcp-server** | 3002 | MCP — conexao com IDEs (opcional) |
+**Dominio 1 — Web (Dashboard):**
+1. Clique em **Adicionar Dominio**
+2. No campo **Dominio**: deixe o Easypanel gerar automaticamente (ele cria algo como `openhive-web-ABC123.sslip.io`) ou digite seu dominio se tiver
+3. No campo **Servico**: selecione **web**
+4. No campo **Porta**: digite **3000**
+5. Clique **Criar**
 
-**No campo "Dominio"**: o Easypanel gera uma URL automatica baseada no IP da sua VPS (algo como `web-openhive.123-45-67-89.sslip.io`). Se voce tiver um dominio proprio, pode colocar (ex: `app.seusite.com`), mas **nao e obrigatorio**.
+**Dominio 2 — API (Backend):**
+1. Clique em **Adicionar Dominio**
+2. **Dominio**: deixe gerar automaticamente
+3. **Servico**: selecione **api**
+4. **Porta**: digite **3001**
+5. Clique **Criar**
 
-3. Clique **Criar** (ou **Salvar**) para cada um
-4. Anote as URLs que o Easypanel gerou — voce vai precisar de 2 delas no proximo passo
+**Dominio 3 — MinIO (Storage de imagens):**
+1. Clique em **Adicionar Dominio**
+2. **Dominio**: deixe gerar automaticamente
+3. **Servico**: selecione **minio**
+4. **Porta**: digite **9000**
+5. Clique **Criar**
+
+**Dominio 4 — MCP Server (opcional, para IDEs):**
+1. Clique em **Adicionar Dominio**
+2. **Dominio**: deixe gerar automaticamente
+3. **Servico**: selecione **mcp-server**
+4. **Porta**: digite **3002**
+5. Clique **Criar**
+
+Ao final, voce tera 4 dominios na lista. **Anote as URLs geradas do web e do minio** — voce vai usar no proximo passo.
 
 ### Passo 6: Atualizar as URLs no ambiente
 
-Volte em **Ambiente** e adicione estas 2 linhas no final, usando as URLs que o Easypanel gerou no passo anterior:
+1. Clique em **Ambiente** no menu lateral
+2. Adicione estas 2 linhas **no final** das variaveis que ja estao la, substituindo pelas URLs reais que o Easypanel gerou:
 
 ```bash
-FRONTEND_URL=https://url-do-web-que-apareceu-no-easypanel
-MINIO_PUBLIC_URL=https://url-do-minio-que-apareceu-no-easypanel
+FRONTEND_URL=https://COLE_AQUI_A_URL_DO_WEB
+MINIO_PUBLIC_URL=https://COLE_AQUI_A_URL_DO_MINIO
 ```
 
-Por exemplo, se o Easypanel gerou `web-openhive.123-45-67-89.sslip.io` para o web e `minio-openhive.123-45-67-89.sslip.io` para o minio:
+**Exemplo real:** se o Easypanel gerou `openhive-web-abc123.sslip.io` para o web e `openhive-minio-def456.sslip.io` para o minio:
 ```bash
-FRONTEND_URL=https://web-openhive.123-45-67-89.sslip.io
-MINIO_PUBLIC_URL=https://minio-openhive.123-45-67-89.sslip.io
+FRONTEND_URL=https://openhive-web-abc123.sslip.io
+MINIO_PUBLIC_URL=https://openhive-minio-def456.sslip.io
 ```
 
-Clique **Salvar** e depois **Implantar** novamente para aplicar.
+3. Clique **Salvar**
+4. Clique **Implantar** (botao verde no topo) para aplicar as mudancas
 
 ### Passo 7: Acessar e configurar
 
 1. Abra a URL do **web** no navegador (a mesma que voce colocou no FRONTEND_URL)
-2. Clique **Registrar** e crie sua conta (primeiro usuario = Owner)
-3. Va em **Configuracoes** no menu lateral e configure tudo pela interface:
+2. Clique **Registrar** e crie sua conta (primeiro usuario vira Owner automaticamente)
+3. Va em **Configuracoes** no menu lateral e configure tudo pela interface web:
    - **Geracao de Imagens** — cole sua chave do Google Gemini ([pegue aqui](https://aistudio.google.com/))
    - **Instagram** — conecte sua conta (opcional)
    - **Telegram Bot** — cole o token do BotFather (opcional)
 
-> **Resumo:** voce NAO precisa comprar um dominio. O Easypanel gera URLs automaticas. Todas as integracoes (Gemini, Instagram, Telegram) sao configuradas pela interface web, nao por variaveis de ambiente.
+> **Voce NAO precisa comprar um dominio.** O Easypanel gera URLs automaticas. Todas as integracoes (Gemini, Instagram, Telegram) sao configuradas pela interface web do OpenHive, nao por variaveis de ambiente.
 
 ### Alternativa: criar servicos manualmente
 
