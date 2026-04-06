@@ -1,7 +1,7 @@
 {
   "name": "openhive-mcp-server",
-  "version": "1.1.0",
-  "description": "OpenHive AI MCP Server - Connect Claude, Antigravity, Cursor and other IDEs to your OpenHive instance",
+  "version": "1.2.0",
+  "description": "OpenHive AI MCP Server - Connect Claude, Antigravity, Cursor and other IDEs to your OpenHive instance. 35 tools including Brands and Mixed Carousel.",
   "main": "index.js",
   "bin": {
     "openhive-mcp": "./index.js"

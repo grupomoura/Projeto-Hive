@@ -53,7 +53,7 @@ async function apiRequest(path, options = {}) {
   return data.data;
 }
 
-const server = new McpServer({ name: 'openhive', version: '1.1.0' });
+const server = new McpServer({ name: 'openhive', version: '1.2.0' });
 
 // ── Posts ──
 
@@ -532,6 +532,249 @@ server.tool('list_video_clips', 'Lista video clips com status', {
   if (input.page) params.set('page', input.page);
   if (input.limit) params.set('limit', input.limit);
   const result = await apiRequest(`/api/video-clips?${params}`);
+  return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+});
+
+// ── Update Post & Mixed Carousel ──
+
+server.tool('update_post', 'Atualiza um post existente (legenda, hashtags, agendamento). Se o post estiver agendado e voce mudar a data, o agendamento e atualizado automaticamente', {
+  post_id: z.string().describe('ID do post'),
+  caption: z.string().optional().describe('Nova legenda'),
+  hashtags: z.array(z.string()).optional().describe('Novas hashtags'),
+  scheduled_at: z.string().optional().describe('Nova data/hora de agendamento (ISO 8601). Reagenda automaticamente se ja estiver agendado'),
+  status: z.enum(['DRAFT', 'SCHEDULED']).optional().describe('Novo status (DRAFT cancela agendamento)'),
+}, async (input) => {
+  const body = {};
+  if (input.caption !== undefined) body.caption = input.caption;
+  if (input.hashtags !== undefined) body.hashtags = input.hashtags;
+  if (input.scheduled_at !== undefined) body.scheduledAt = input.scheduled_at;
+  if (input.status !== undefined) body.status = input.status;
+  const result = await apiRequest(`/api/posts/${input.post_id}`, {
+    method: 'PUT', body: JSON.stringify(body),
+  });
+  return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+});
+
+server.tool(
+  'create_mixed_carousel',
+  'Cria carrossel misto: capa gerada por IA (Gemini) + slides informativos em HTML/Template. Aceita brand_id para aplicar logo, cores e tom de voz da marca automaticamente',
+  {
+    cover_prompt: z.string().describe('Prompt para gerar a imagem de capa via IA (primeiro slide)'),
+    slides: z.array(z.object({
+      title: z.string().describe('Texto principal do slide'),
+      subtitle: z.string().optional().describe('Subtitulo do slide'),
+      template: z.string().optional().describe('Template: bold-gradient, minimal-dark, neon-card, quote-elegant, stats-impact, split-color'),
+    })).min(1).max(9).describe('Lista de slides template (1-9, a capa IA conta como slide 1)'),
+    caption: z.string().optional().describe('Legenda do post (gerada automaticamente se nao informada)'),
+    hashtags: z.array(z.string()).optional().describe('Lista de hashtags'),
+    aspect_ratio: z.enum(['1:1', '4:5', '9:16']).optional().describe('Proporcao: 1:1 (Feed), 4:5 (Retrato), 9:16 (Stories)'),
+    tone: z.string().optional().describe('Tom da legenda: educativo, inspirador, humor, noticia'),
+    scheduled_at: z.string().optional().describe('Data/hora para agendar (ISO 8601)'),
+    brand_id: z.string().optional().describe('ID do brand para aplicar identidade visual (logo + cores + tom + hashtags). Use list_brands antes'),
+    apply_brand: z.boolean().optional().describe('Se true (padrao), aplica brand. Se false, ignora mesmo com brand_id'),
+  },
+  async (input) => {
+    const aspectRatio = input.aspect_ratio || '1:1';
+    const images = [];
+
+    // Resolve brand if provided
+    let brand = null;
+    if (input.brand_id && input.apply_brand !== false) {
+      try {
+        brand = await apiRequest(`/api/brands/${input.brand_id}`);
+      } catch (err) {
+        // ignore brand load errors
+      }
+    }
+
+    // Step 1: AI cover (with brand hints in prompt)
+    let coverPrompt = input.cover_prompt;
+    if (brand) {
+      const hints = [];
+      if (brand.primaryColor) hints.push(`paleta ${brand.primaryColor} e ${brand.secondaryColor || ''}`);
+      if (brand.voiceTone) hints.push(`estilo ${brand.voiceTone}`);
+      if (hints.length > 0) coverPrompt = `${input.cover_prompt}. Identidade visual: ${hints.join(', ')}`;
+    }
+    const cover = await apiRequest('/api/generate/image', {
+      method: 'POST', body: JSON.stringify({ prompt: coverPrompt, aspectRatio }),
+    });
+    images.push({ imageUrl: cover.imageUrl, order: 0, prompt: coverPrompt });
+
+    // Step 2: Template slides (with brand colors/logo if available)
+    const slideResults = await Promise.allSettled(
+      input.slides.map((slide) => {
+        const body = {
+          title: slide.title,
+          subtitle: slide.subtitle,
+          template: slide.template || 'bold-gradient',
+          aspectRatio,
+        };
+        if (input.brand_id) {
+          body.brandId = input.brand_id;
+          body.applyBrand = input.apply_brand !== false;
+        }
+        return apiRequest('/api/generate/template', {
+          method: 'POST', body: JSON.stringify(body),
+        });
+      })
+    );
+
+    for (let i = 0; i < slideResults.length; i++) {
+      const r = slideResults[i];
+      if (r.status === 'fulfilled') {
+        images.push({ imageUrl: r.value.imageUrl, order: images.length, prompt: input.slides[i].title });
+      }
+    }
+
+    if (images.length < 2) {
+      throw new Error(`Carrossel precisa de pelo menos 2 imagens. Apenas ${images.length} gerada(s) com sucesso.`);
+    }
+
+    // Step 3: Caption
+    let caption = input.caption;
+    let hashtags = input.hashtags;
+    if (!caption) {
+      const tone = input.tone || (brand && brand.voiceTone) || undefined;
+      const result = await apiRequest('/api/generate/caption', {
+        method: 'POST', body: JSON.stringify({ topic: input.cover_prompt, tone }),
+      });
+      caption = result.caption;
+      hashtags = hashtags || result.hashtags;
+    }
+
+    // Merge brand default hashtags
+    if (brand && brand.defaultHashtags && brand.defaultHashtags.length) {
+      const existing = new Set((hashtags || []).map((h) => h.toLowerCase()));
+      const merged = [...(hashtags || [])];
+      for (const tag of brand.defaultHashtags) {
+        if (!existing.has(tag.toLowerCase())) merged.push(tag);
+      }
+      hashtags = merged;
+    }
+
+    // Step 4: Create post
+    const post = await apiRequest('/api/posts', {
+      method: 'POST',
+      body: JSON.stringify({
+        caption, hashtags, source: 'MCP', aspectRatio,
+        isCarousel: true, images,
+        ...(input.scheduled_at ? { scheduledAt: input.scheduled_at } : {}),
+      }),
+    });
+
+    return {
+      content: [{
+        type: 'text',
+        text: JSON.stringify({
+          post_id: post.id,
+          caption: post.caption,
+          is_carousel: true,
+          cover_image: images[0].imageUrl,
+          template_slides: images.length - 1,
+          total_images: images.length,
+          brand_applied: brand ? { id: brand.id, name: brand.name } : null,
+          status: post.status,
+          scheduled_at: post.scheduledAt || null,
+        }, null, 2),
+      }],
+    };
+  }
+);
+
+// ── Brands ──
+
+server.tool('list_brands', 'Lista todos os brands cadastrados (identidade visual: logo, cores, produtos, tom de voz). Use ANTES de criar qualquer post visual para perguntar ao usuario qual brand aplicar', {}, async () => {
+  const result = await apiRequest('/api/brands');
+  return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+});
+
+server.tool('get_brand', 'Retorna detalhes completos de um brand especifico', {
+  brand_id: z.string().describe('ID do brand'),
+}, async (input) => {
+  const result = await apiRequest(`/api/brands/${input.brand_id}`);
+  return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+});
+
+server.tool('get_default_brand', 'Retorna o brand padrao do usuario (se houver). Util para aplicar automaticamente quando o usuario nao especifica', {}, async () => {
+  const result = await apiRequest('/api/brands/default');
+  return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+});
+
+server.tool('create_brand', 'Cria um novo brand com identidade visual', {
+  name: z.string().describe('Nome do brand'),
+  logo_url: z.string().optional().describe('URL do logo'),
+  primary_color: z.string().optional().describe('Cor primaria em hex (#RRGGBB)'),
+  secondary_color: z.string().optional().describe('Cor secundaria em hex (#RRGGBB)'),
+  accent_color: z.string().optional().describe('Cor de destaque em hex'),
+  font_family: z.string().optional().describe('Familia de fonte preferida'),
+  description: z.string().optional().describe('Descricao do brand'),
+  voice_tone: z.string().optional().describe('Tom de voz: profissional, descontraido, educativo'),
+  products: z.array(z.string()).optional().describe('Lista de produtos/servicos'),
+  default_hashtags: z.array(z.string()).optional().describe('Hashtags padrao a aplicar nos posts'),
+  is_default: z.boolean().optional().describe('Se este sera o brand padrao'),
+}, async (input) => {
+  const body = {
+    name: input.name,
+    logoUrl: input.logo_url,
+    primaryColor: input.primary_color,
+    secondaryColor: input.secondary_color,
+    accentColor: input.accent_color,
+    fontFamily: input.font_family,
+    description: input.description,
+    voiceTone: input.voice_tone,
+    products: input.products,
+    defaultHashtags: input.default_hashtags,
+    isDefault: input.is_default,
+  };
+  const result = await apiRequest('/api/brands', {
+    method: 'POST', body: JSON.stringify(body),
+  });
+  return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+});
+
+server.tool('update_brand', 'Atualiza um brand existente', {
+  brand_id: z.string().describe('ID do brand'),
+  name: z.string().optional(),
+  logo_url: z.string().optional(),
+  primary_color: z.string().optional(),
+  secondary_color: z.string().optional(),
+  accent_color: z.string().optional(),
+  font_family: z.string().optional(),
+  description: z.string().optional(),
+  voice_tone: z.string().optional(),
+  products: z.array(z.string()).optional(),
+  default_hashtags: z.array(z.string()).optional(),
+  is_default: z.boolean().optional(),
+}, async (input) => {
+  const body = {};
+  if (input.name !== undefined) body.name = input.name;
+  if (input.logo_url !== undefined) body.logoUrl = input.logo_url;
+  if (input.primary_color !== undefined) body.primaryColor = input.primary_color;
+  if (input.secondary_color !== undefined) body.secondaryColor = input.secondary_color;
+  if (input.accent_color !== undefined) body.accentColor = input.accent_color;
+  if (input.font_family !== undefined) body.fontFamily = input.font_family;
+  if (input.description !== undefined) body.description = input.description;
+  if (input.voice_tone !== undefined) body.voiceTone = input.voice_tone;
+  if (input.products !== undefined) body.products = input.products;
+  if (input.default_hashtags !== undefined) body.defaultHashtags = input.default_hashtags;
+  if (input.is_default !== undefined) body.isDefault = input.is_default;
+  const result = await apiRequest(`/api/brands/${input.brand_id}`, {
+    method: 'PUT', body: JSON.stringify(body),
+  });
+  return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+});
+
+server.tool('set_default_brand', 'Define um brand como padrao (desmarca os outros automaticamente)', {
+  brand_id: z.string().describe('ID do brand a tornar padrao'),
+}, async (input) => {
+  const result = await apiRequest(`/api/brands/${input.brand_id}/default`, { method: 'PUT' });
+  return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+});
+
+server.tool('delete_brand', 'Remove um brand', {
+  brand_id: z.string().describe('ID do brand a remover'),
+}, async (input) => {
+  const result = await apiRequest(`/api/brands/${input.brand_id}`, { method: 'DELETE' });
   return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
 });
 

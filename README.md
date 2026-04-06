@@ -744,7 +744,7 @@ O `OPENHIVE_API_TOKEN` e o mesmo valor do `INTERNAL_SERVICE_TOKEN` que esta no s
   "mcpServers": {
     "openhive": {
       "command": "npx",
-      "args": ["-y", "openhive-mcp-server@1.1.0"],
+      "args": ["-y", "openhive-mcp-server@1.2.0"],
       "env": {
         "OPENHIVE_API_URL": "http://localhost:3001",
         "OPENHIVE_API_TOKEN": "seu_INTERNAL_SERVICE_TOKEN"
@@ -760,7 +760,7 @@ O `OPENHIVE_API_TOKEN` e o mesmo valor do `INTERNAL_SERVICE_TOKEN` que esta no s
   "mcpServers": {
     "openhive": {
       "command": "npx",
-      "args": ["-y", "openhive-mcp-server@1.1.0"],
+      "args": ["-y", "openhive-mcp-server@1.2.0"],
       "env": {
         "OPENHIVE_API_URL": "http://localhost:3001",
         "OPENHIVE_API_TOKEN": "seu_INTERNAL_SERVICE_TOKEN"
@@ -776,7 +776,7 @@ O `OPENHIVE_API_TOKEN` e o mesmo valor do `INTERNAL_SERVICE_TOKEN` que esta no s
   "mcpServers": {
     "openhive": {
       "command": "npx",
-      "args": ["-y", "openhive-mcp-server@1.1.0"],
+      "args": ["-y", "openhive-mcp-server@1.2.0"],
       "env": {
         "OPENHIVE_API_URL": "http://localhost:3001",
         "OPENHIVE_API_TOKEN": "seu_INTERNAL_SERVICE_TOKEN"
@@ -792,7 +792,7 @@ O `OPENHIVE_API_TOKEN` e o mesmo valor do `INTERNAL_SERVICE_TOKEN` que esta no s
   "servers": {
     "openhive": {
       "command": "npx",
-      "args": ["-y", "openhive-mcp-server@1.1.0"],
+      "args": ["-y", "openhive-mcp-server@1.2.0"],
       "env": {
         "OPENHIVE_API_URL": "http://localhost:3001",
         "OPENHIVE_API_TOKEN": "seu_INTERNAL_SERVICE_TOKEN"
