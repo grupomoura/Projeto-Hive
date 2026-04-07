@@ -14,24 +14,41 @@ import {
 
 const router = Router();
 
-const hexColor = z.string().regex(/^#[0-9A-Fa-f]{6}$/);
+// Accept hex (#RRGGBB), null, or empty string (treated as null)
+const hexColorOptional = z
+  .union([z.string().regex(/^#[0-9A-Fa-f]{6}$/), z.literal(''), z.null()])
+  .optional()
+  .transform((v) => (v === '' ? null : v));
+
+// Accept any short string, null, or empty string
+const optionalString = (max: number) =>
+  z
+    .union([z.string().max(max), z.literal(''), z.null()])
+    .optional()
+    .transform((v) => (v === '' ? null : v));
+
+// Accept URL, null, or empty string
+const optionalUrl = z
+  .union([z.string().url(), z.literal(''), z.null()])
+  .optional()
+  .transform((v) => (v === '' ? null : v));
 
 const createBrandSchema = z.object({
   name: z.string().min(1).max(100),
-  logoUrl: z.string().url().optional().nullable(),
-  primaryColor: hexColor.optional(),
-  secondaryColor: hexColor.optional(),
-  accentColor: hexColor.optional().nullable(),
-  backgroundColor: hexColor.optional().nullable(),
-  textColor: hexColor.optional().nullable(),
-  mutedColor: hexColor.optional().nullable(),
-  fontFamily: z.string().max(100).optional().nullable(),
-  headingFont: z.string().max(100).optional().nullable(),
-  bodyFont: z.string().max(100).optional().nullable(),
-  description: z.string().max(2000).optional().nullable(),
-  voiceTone: z.string().max(500).optional().nullable(),
-  websiteUrl: z.string().url().optional().nullable().or(z.literal('')),
-  instagramUrl: z.string().url().optional().nullable().or(z.literal('')),
+  logoUrl: optionalUrl,
+  primaryColor: hexColorOptional,
+  secondaryColor: hexColorOptional,
+  accentColor: hexColorOptional,
+  backgroundColor: hexColorOptional,
+  textColor: hexColorOptional,
+  mutedColor: hexColorOptional,
+  fontFamily: optionalString(100),
+  headingFont: optionalString(100),
+  bodyFont: optionalString(100),
+  description: optionalString(2000),
+  voiceTone: optionalString(500),
+  websiteUrl: optionalUrl,
+  instagramUrl: optionalUrl,
   products: z.array(z.string()).optional(),
   defaultHashtags: z.array(z.string()).optional(),
   isDefault: z.boolean().optional(),

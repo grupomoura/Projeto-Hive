@@ -98,26 +98,32 @@ export default function BrandsPage() {
     if (!editing.name?.trim()) { alert('Nome do brand e obrigatorio'); return; }
     setSaving(true);
     try {
-      const body: any = {
+      // Helper: empty string -> undefined (omit from payload)
+      const opt = (v?: string | null) => (v && v.trim() ? v.trim() : undefined);
+
+      const body: Record<string, unknown> = {
         name: editing.name,
-        logoUrl: editing.logoUrl || null,
-        primaryColor: editing.primaryColor,
-        secondaryColor: editing.secondaryColor,
-        accentColor: editing.accentColor || null,
-        backgroundColor: editing.backgroundColor || null,
-        textColor: editing.textColor || null,
-        mutedColor: editing.mutedColor || null,
-        fontFamily: editing.fontFamily || null,
-        headingFont: editing.headingFont || null,
-        bodyFont: editing.bodyFont || null,
-        description: editing.description || null,
-        voiceTone: editing.voiceTone || null,
-        websiteUrl: editing.websiteUrl || null,
-        instagramUrl: editing.instagramUrl || null,
+        logoUrl: opt(editing.logoUrl),
+        primaryColor: opt(editing.primaryColor) || '#6C5CE7',
+        secondaryColor: opt(editing.secondaryColor) || '#E84393',
+        accentColor: opt(editing.accentColor),
+        backgroundColor: opt(editing.backgroundColor),
+        textColor: opt(editing.textColor),
+        mutedColor: opt(editing.mutedColor),
+        fontFamily: opt(editing.fontFamily),
+        headingFont: opt(editing.headingFont),
+        bodyFont: opt(editing.bodyFont),
+        description: opt(editing.description),
+        voiceTone: opt(editing.voiceTone),
+        websiteUrl: opt(editing.websiteUrl),
+        instagramUrl: opt(editing.instagramUrl),
         products: productsText.split(',').map((p) => p.trim()).filter(Boolean),
         defaultHashtags: hashtagsText.split(',').map((h) => h.trim().replace(/^#/, '')).filter(Boolean),
         isDefault: editing.isDefault,
       };
+
+      // Remove undefined keys so they're not sent in JSON
+      Object.keys(body).forEach((k) => body[k] === undefined && delete body[k]);
       if (editing.id) {
         await api.updateBrand(editing.id, body);
       } else {
