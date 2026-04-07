@@ -121,6 +121,19 @@ export const api = {
   cutVideoClips: (id: string, body: Record<string, unknown>) =>
     request(`/api/videos/${id}/cut`, { method: 'POST', body: JSON.stringify(body) }),
 
+  // Design Systems
+  listDesignSystems: (params: Record<string, string> = {}) => {
+    const qs = Object.keys(params).length ? '?' + new URLSearchParams(params).toString() : '';
+    return request<{ items: any[]; total: number; totalAvailable: number }>(`/api/design-systems${qs}`);
+  },
+
+  getDesignSystem: (id: string) => request<any>(`/api/design-systems/${id}`),
+
+  getDesignSystemCategories: () => request<any[]>('/api/design-systems/categories'),
+
+  suggestBrandFromInspirations: (body: Record<string, unknown>) =>
+    request('/api/design-systems/suggest', { method: 'POST', body: JSON.stringify(body) }),
+
   // Brands
   listBrands: () => request<{ items: any[]; total: number }>('/api/brands'),
 

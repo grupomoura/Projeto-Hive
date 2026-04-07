@@ -13,6 +13,12 @@ import {
   setDefaultBrand,
   deleteBrand,
 } from './tools/brands';
+import {
+  listDesignSystems,
+  getDesignSystem,
+  listDesignSystemCategories,
+  suggestBrandFromInspirations,
+} from './tools/designSystems';
 import { generateImage } from './tools/generateImage';
 import { generateCaption } from './tools/generateCaption';
 import { schedulePost } from './tools/schedulePost';
@@ -155,6 +161,58 @@ function registerTools(server: McpServer) {
     },
     async ({ post_id, caption, hashtags, scheduled_at, status }) => {
       const result = await updatePost({ post_id, caption, hashtags, scheduled_at, status });
+      return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+    },
+  );
+
+  // Design Systems (visual inspirations library)
+
+  server.tool(
+    'list_design_systems',
+    'Lista a biblioteca de 58 design systems de marcas conhecidas (Stripe, Linear, Apple, Notion, etc) que podem ser usados como inspiracao visual para criar brands. Cada item retorna nome, vibe (descricao), categoria, paleta principal e mood keywords. Use isso quando o usuario pedir ajuda para criar um brand do zero ou refinar a identidade visual',
+    {
+      category: z.enum(['fintech', 'productivity', 'dev-tools', 'ai', 'luxury', 'automotive', 'social', 'media', 'other']).optional().describe('Filtrar por categoria'),
+      search: z.string().optional().describe('Buscar por nome, vibe ou mood keyword (ex: warm, dark, minimal)'),
+      limit: z.number().optional().describe('Quantidade maxima a retornar'),
+    },
+    async (input) => {
+      const result = await listDesignSystems(input);
+      return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+    },
+  );
+
+  server.tool(
+    'get_design_system',
+    'Retorna detalhes completos de um design system especifico (todas as cores, tipografia, principios). Use depois de list_design_systems quando o usuario escolher uma inspiracao',
+    {
+      design_system_id: z.string().describe('ID do design system (ex: stripe, linear, apple)'),
+    },
+    async (input) => {
+      const result = await getDesignSystem(input);
+      return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+    },
+  );
+
+  server.tool(
+    'list_design_system_categories',
+    'Retorna as categorias disponiveis na biblioteca de design systems com a quantidade em cada (fintech, dev-tools, ai, etc)',
+    {},
+    async () => {
+      const result = await listDesignSystemCategories();
+      return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
+    },
+  );
+
+  server.tool(
+    'suggest_brand_from_inspirations',
+    'Combina 1-5 design systems da biblioteca em uma sugestao de brand. Retorna paleta de cores, fonte, tom de voz e descricao. NAO salva nada - apenas sugere. Para salvar use create_brand depois que o usuario aprovar',
+    {
+      inspiration_ids: z.array(z.string()).min(1).max(5).describe('IDs dos design systems para combinar (ex: ["stripe", "linear"])'),
+      business_name: z.string().optional().describe('Nome do negocio do usuario (opcional)'),
+      business_type: z.string().optional().describe('Tipo de negocio (ex: "AI startup", "fintech", "consultoria") - ajuda a personalizar a sugestao'),
+    },
+    async (input) => {
+      const result = await suggestBrandFromInspirations(input);
       return { content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }] };
     },
   );

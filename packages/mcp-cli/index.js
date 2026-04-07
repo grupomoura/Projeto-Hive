@@ -53,7 +53,7 @@ async function apiRequest(path, options = {}) {
   return data.data;
 }
 
-const server = new McpServer({ name: 'openhive', version: '1.3.0' });
+const server = new McpServer({ name: 'openhive', version: '1.4.0' });
 
 // ── Posts ──
 
@@ -678,6 +678,87 @@ server.tool(
         }, null, 2),
       }],
     };
+  }
+);
+
+// ── Design Systems (visual inspirations library) ──
+
+server.tool(
+  'list_design_systems',
+  'Lista a biblioteca de 58 design systems de marcas conhecidas (Stripe, Linear, Apple, Notion, etc) que podem ser usados como inspiracao visual para criar brands. Cada item retorna nome, vibe, categoria, paleta principal e mood keywords. Use isso quando o usuario pedir ajuda para criar um brand do zero ou refinar a identidade visual',
+  {
+    category: z.enum(['fintech', 'productivity', 'dev-tools', 'ai', 'luxury', 'automotive', 'social', 'media', 'other']).optional().describe('Filtrar por categoria'),
+    search: z.string().optional().describe('Buscar por nome, vibe ou mood keyword (ex: warm, dark, minimal)'),
+    limit: z.number().optional().describe('Quantidade maxima a retornar'),
+  },
+  async (input) => {
+    const params = new URLSearchParams();
+    if (input.category) params.set('category', input.category);
+    if (input.search) params.set('search', input.search);
+    if (input.limit) params.set('limit', String(input.limit));
+    const qs = params.toString();
+    const result = await apiRequest(`/api/design-systems${qs ? '?' + qs : ''}`);
+    return {
+      content: [{
+        type: 'text',
+        text: JSON.stringify({
+          total_in_library: result.totalAvailable,
+          returned: result.total,
+          design_systems: result.items.map((d) => ({
+            id: d.id,
+            name: d.name,
+            vibe: d.vibe,
+            category: d.category,
+            mood_keywords: d.moodKeywords,
+            primary_color: d.colors.primary,
+            secondary_color: d.colors.secondary,
+          })),
+        }, null, 2),
+      }],
+    };
+  }
+);
+
+server.tool(
+  'get_design_system',
+  'Retorna detalhes completos de um design system especifico (todas as cores, tipografia, principios). Use depois de list_design_systems quando o usuario escolher uma inspiracao',
+  {
+    design_system_id: z.string().describe('ID do design system (ex: stripe, linear, apple)'),
+  },
+  async (input) => {
+    const result = await apiRequest(`/api/design-systems/${input.design_system_id}`);
+    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
+  }
+);
+
+server.tool(
+  'list_design_system_categories',
+  'Retorna as categorias disponiveis na biblioteca de design systems com a quantidade em cada (fintech, dev-tools, ai, etc)',
+  {},
+  async () => {
+    const result = await apiRequest('/api/design-systems/categories');
+    return { content: [{ type: 'text', text: JSON.stringify({ categories: result }, null, 2) }] };
+  }
+);
+
+server.tool(
+  'suggest_brand_from_inspirations',
+  'Combina 1-5 design systems da biblioteca em uma sugestao de brand. Retorna paleta de cores, fonte, tom de voz e descricao. NAO salva nada - apenas sugere. Para salvar use create_brand depois que o usuario aprovar',
+  {
+    inspiration_ids: z.array(z.string()).min(1).max(5).describe('IDs dos design systems para combinar (ex: ["stripe", "linear"])'),
+    business_name: z.string().optional().describe('Nome do negocio do usuario'),
+    business_type: z.string().optional().describe('Tipo de negocio (ex: "AI startup", "fintech")'),
+  },
+  async (input) => {
+    const result = await apiRequest('/api/design-systems/suggest', {
+      method: 'POST',
+      body: JSON.stringify({
+        inspirationIds: input.inspiration_ids,
+        businessName: input.business_name,
+        businessType: input.business_type,
+      }),
+    });
+    return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
   }
 );
 
