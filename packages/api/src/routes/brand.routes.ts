@@ -23,6 +23,8 @@ const createBrandSchema = z.object({
   fontFamily: z.string().max(100).optional().nullable(),
   description: z.string().max(2000).optional().nullable(),
   voiceTone: z.string().max(500).optional().nullable(),
+  websiteUrl: z.string().url().optional().nullable().or(z.literal('')),
+  instagramUrl: z.string().url().optional().nullable().or(z.literal('')),
   products: z.array(z.string()).optional(),
   defaultHashtags: z.array(z.string()).optional(),
   isDefault: z.boolean().optional(),

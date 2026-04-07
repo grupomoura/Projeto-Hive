@@ -17,7 +17,7 @@ Crie posts com imagens e legendas geradas por IA, agende publicacoes, extraia cl
 - **Posts com IA** - Gera imagens (Google Gemini) e legendas, publica no Instagram
 - **Carrossel** - Crie carrosseis com 2-10 slides (HTML/Tailwind renderizado ou IA)
 - **Carrossel Misto** - Capa gerada por IA + slides em HTML/Template (melhor dos dois mundos)
-- **Brands** - Cadastre marcas com logo, cores, tom de voz e produtos. Aplique identidade visual automaticamente nos carrosseis
+- **Brands** - Cadastre marcas com logo, cores, tom de voz, produtos, **site** e **Instagram**. Agentes de IA podem pesquisar essas URLs para manter consistencia
 - **Calendario** - Visualize e agende posts em calendario
 - **Tarefas** - Gerencie gravacoes e publicacoes com prioridades e prazos
 - **Projetos** - Organize conteudo em projetos com modulos
@@ -750,7 +750,7 @@ O `OPENHIVE_API_TOKEN` e o mesmo valor do `INTERNAL_SERVICE_TOKEN` que esta no s
   "mcpServers": {
     "openhive": {
       "command": "npx",
-      "args": ["-y", "openhive-mcp-server@1.2.0"],
+      "args": ["-y", "openhive-mcp-server@1.3.0"],
       "env": {
         "OPENHIVE_API_URL": "http://localhost:3001",
         "OPENHIVE_API_TOKEN": "seu_INTERNAL_SERVICE_TOKEN"
@@ -766,7 +766,7 @@ O `OPENHIVE_API_TOKEN` e o mesmo valor do `INTERNAL_SERVICE_TOKEN` que esta no s
   "mcpServers": {
     "openhive": {
       "command": "npx",
-      "args": ["-y", "openhive-mcp-server@1.2.0"],
+      "args": ["-y", "openhive-mcp-server@1.3.0"],
       "env": {
         "OPENHIVE_API_URL": "http://localhost:3001",
         "OPENHIVE_API_TOKEN": "seu_INTERNAL_SERVICE_TOKEN"
@@ -782,7 +782,7 @@ O `OPENHIVE_API_TOKEN` e o mesmo valor do `INTERNAL_SERVICE_TOKEN` que esta no s
   "mcpServers": {
     "openhive": {
       "command": "npx",
-      "args": ["-y", "openhive-mcp-server@1.2.0"],
+      "args": ["-y", "openhive-mcp-server@1.3.0"],
       "env": {
         "OPENHIVE_API_URL": "http://localhost:3001",
         "OPENHIVE_API_TOKEN": "seu_INTERNAL_SERVICE_TOKEN"
@@ -798,7 +798,7 @@ O `OPENHIVE_API_TOKEN` e o mesmo valor do `INTERNAL_SERVICE_TOKEN` que esta no s
   "servers": {
     "openhive": {
       "command": "npx",
-      "args": ["-y", "openhive-mcp-server@1.2.0"],
+      "args": ["-y", "openhive-mcp-server@1.3.0"],
       "env": {
         "OPENHIVE_API_URL": "http://localhost:3001",
         "OPENHIVE_API_TOKEN": "seu_INTERNAL_SERVICE_TOKEN"
@@ -989,21 +989,24 @@ Cadastre suas marcas para aplicar logo, cores e tom de voz automaticamente nos p
    - **Nome** e **logo** (PNG/JPG/WebP)
    - **Cor primaria** e **secundaria** (color picker)
    - **Descricao** e **tom de voz** (educativo, descontraido, etc)
+   - **Site (URL)** - agentes de IA podem visitar para pesquisar informacoes do brand
+   - **Instagram (URL do perfil)** - agentes podem analisar o estilo visual e de conteudo
    - **Produtos/servicos** (separados por virgula)
    - **Hashtags padrao**
 3. Marque **brand padrao** para aplicar automaticamente
 
 **Pelo MCP** (em qualquer IDE):
 1. O agente chama `list_brands` para descobrir brands disponiveis
-2. Pergunta qual brand voce quer aplicar no post
-3. Passa `brand_id` para `create_mixed_carousel` ou `create_post`
-4. O OpenHive aplica automaticamente:
+2. Pega `website_url` e `instagram_url` para pesquisar contexto e estilo
+3. Pergunta qual brand voce quer aplicar no post
+4. Passa `brand_id` para `create_mixed_carousel` ou `create_post`
+5. O OpenHive aplica automaticamente:
    - **Logo** no canto inferior direito de cada slide template
    - **Cores** do brand nos templates HTML
    - **Tom de voz** na geracao da legenda
    - **Hashtags padrao** mescladas as hashtags do post
 
-Exemplo de prompt no chat: *"Cria um carrossel sobre 5 dicas de produtividade usando o brand Buildix"*
+Exemplo de prompt no chat: *"Cria um carrossel sobre 5 dicas de produtividade usando o brand Buildix - antes de criar, pesquise no site e Instagram dele pra manter o estilo"*
 
 ### YouTube Clips
 1. Clips > Novo Clip > cole URL > Analisar

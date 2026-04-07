@@ -53,7 +53,7 @@ async function apiRequest(path, options = {}) {
   return data.data;
 }
 
-const server = new McpServer({ name: 'openhive', version: '1.2.0' });
+const server = new McpServer({ name: 'openhive', version: '1.3.0' });
 
 // ── Posts ──
 
@@ -700,7 +700,7 @@ server.tool('get_default_brand', 'Retorna o brand padrao do usuario (se houver).
   return { content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] };
 });
 
-server.tool('create_brand', 'Cria um novo brand com identidade visual', {
+server.tool('create_brand', 'Cria um novo brand com identidade visual. Aceita website_url e instagram_url para que agentes possam pesquisar informacoes da marca', {
   name: z.string().describe('Nome do brand'),
   logo_url: z.string().optional().describe('URL do logo'),
   primary_color: z.string().optional().describe('Cor primaria em hex (#RRGGBB)'),
@@ -709,6 +709,8 @@ server.tool('create_brand', 'Cria um novo brand com identidade visual', {
   font_family: z.string().optional().describe('Familia de fonte preferida'),
   description: z.string().optional().describe('Descricao do brand'),
   voice_tone: z.string().optional().describe('Tom de voz: profissional, descontraido, educativo'),
+  website_url: z.string().optional().describe('URL do site oficial - agentes podem visitar para pesquisar informacoes e contexto'),
+  instagram_url: z.string().optional().describe('URL do perfil Instagram - agentes podem analisar o estilo visual e de conteudo para manter consistencia'),
   products: z.array(z.string()).optional().describe('Lista de produtos/servicos'),
   default_hashtags: z.array(z.string()).optional().describe('Hashtags padrao a aplicar nos posts'),
   is_default: z.boolean().optional().describe('Se este sera o brand padrao'),
@@ -722,6 +724,8 @@ server.tool('create_brand', 'Cria um novo brand com identidade visual', {
     fontFamily: input.font_family,
     description: input.description,
     voiceTone: input.voice_tone,
+    websiteUrl: input.website_url,
+    instagramUrl: input.instagram_url,
     products: input.products,
     defaultHashtags: input.default_hashtags,
     isDefault: input.is_default,
@@ -742,6 +746,8 @@ server.tool('update_brand', 'Atualiza um brand existente', {
   font_family: z.string().optional(),
   description: z.string().optional(),
   voice_tone: z.string().optional(),
+  website_url: z.string().optional(),
+  instagram_url: z.string().optional(),
   products: z.array(z.string()).optional(),
   default_hashtags: z.array(z.string()).optional(),
   is_default: z.boolean().optional(),
@@ -755,6 +761,8 @@ server.tool('update_brand', 'Atualiza um brand existente', {
   if (input.font_family !== undefined) body.fontFamily = input.font_family;
   if (input.description !== undefined) body.description = input.description;
   if (input.voice_tone !== undefined) body.voiceTone = input.voice_tone;
+  if (input.website_url !== undefined) body.websiteUrl = input.website_url;
+  if (input.instagram_url !== undefined) body.instagramUrl = input.instagram_url;
   if (input.products !== undefined) body.products = input.products;
   if (input.default_hashtags !== undefined) body.defaultHashtags = input.default_hashtags;
   if (input.is_default !== undefined) body.isDefault = input.is_default;

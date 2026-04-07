@@ -49,6 +49,8 @@ model Brand {
   fontFamily      String?
   description     String?
   voiceTone       String?
+  websiteUrl      String?
+  instagramUrl    String?
   products        String[] @default([])
   defaultHashtags String[] @default([])
   isDefault       Boolean  @default(false)

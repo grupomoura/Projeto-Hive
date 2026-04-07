@@ -14,6 +14,8 @@ interface Brand {
   fontFamily?: string | null;
   description?: string | null;
   voiceTone?: string | null;
+  websiteUrl?: string | null;
+  instagramUrl?: string | null;
   products: string[];
   defaultHashtags: string[];
   isDefault: boolean;
@@ -28,6 +30,8 @@ const EMPTY_BRAND: Partial<Brand> = {
   fontFamily: '',
   description: '',
   voiceTone: '',
+  websiteUrl: '',
+  instagramUrl: '',
   products: [],
   defaultHashtags: [],
   isDefault: false,
@@ -93,6 +97,8 @@ export default function BrandsPage() {
         fontFamily: editing.fontFamily || null,
         description: editing.description || null,
         voiceTone: editing.voiceTone || null,
+        websiteUrl: editing.websiteUrl || null,
+        instagramUrl: editing.instagramUrl || null,
         products: productsText.split(',').map((p) => p.trim()).filter(Boolean),
         defaultHashtags: hashtagsText.split(',').map((h) => h.trim().replace(/^#/, '')).filter(Boolean),
         isDefault: editing.isDefault,
@@ -372,6 +378,32 @@ export default function BrandsPage() {
                   placeholder="Ex: profissional, descontraido, educativo"
                   className="input-field"
                 />
+              </div>
+
+              {/* Website URL */}
+              <div>
+                <label className="block text-xs font-semibold text-text-secondary mb-1.5 uppercase tracking-wider">Site (URL)</label>
+                <input
+                  type="url"
+                  value={editing.websiteUrl || ''}
+                  onChange={(e) => setEditing({ ...editing, websiteUrl: e.target.value })}
+                  placeholder="https://meusite.com"
+                  className="input-field"
+                />
+                <p className="text-[10px] text-text-muted mt-1">Agentes de IA podem visitar essa URL para pesquisar informacoes do brand</p>
+              </div>
+
+              {/* Instagram URL */}
+              <div>
+                <label className="block text-xs font-semibold text-text-secondary mb-1.5 uppercase tracking-wider">Instagram (URL do perfil)</label>
+                <input
+                  type="url"
+                  value={editing.instagramUrl || ''}
+                  onChange={(e) => setEditing({ ...editing, instagramUrl: e.target.value })}
+                  placeholder="https://instagram.com/seu_usuario"
+                  className="input-field"
+                />
+                <p className="text-[10px] text-text-muted mt-1">Agentes podem analisar o estilo do perfil para manter consistencia visual</p>
               </div>
 
               {/* Products */}
