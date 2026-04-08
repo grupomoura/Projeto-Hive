@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '../../../lib/api';
 import {
@@ -103,6 +103,8 @@ function escapeHtml(s: string) {
 
 export default function VisualEditorPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const postIdParam = searchParams?.get('postId');
   const [slides, setSlides] = useState<SlideState[]>([emptySlide(0)]);
   const [activeIdx, setActiveIdx] = useState(0);
   const [aspectRatio, setAspectRatio] = useState<AspectRatio>('1:1');
@@ -111,6 +113,8 @@ export default function VisualEditorPage() {
   const [caption, setCaption] = useState('');
   const [hashtags, setHashtags] = useState('');
   const [scheduledAt, setScheduledAt] = useState('');
+  const [currentPostId, setCurrentPostId] = useState<string | null>(null);
+  const [loadingPost, setLoadingPost] = useState(false);
   const [genLoading, setGenLoading] = useState<string | null>(null);
   const [renderingAll, setRenderingAll] = useState(false);
   const [savingPost, setSavingPost] = useState(false);
@@ -129,6 +133,63 @@ export default function VisualEditorPage() {
       })
       .catch(() => {});
   }, []);
+
+  // Load post into editor when ?postId= is in the URL
+  useEffect(() => {
+    if (!postIdParam) return;
+    setLoadingPost(true);
+    api.getPost(postIdParam)
+      .then((post: any) => {
+        if (!post) return;
+        setCurrentPostId(post.id);
+        setCaption(post.caption || '');
+        setHashtags((post.hashtags || []).join(', '));
+        if (post.scheduledAt) {
+          setScheduledAt(new Date(post.scheduledAt).toISOString().slice(0, 16));
+        }
+        if (post.aspectRatio === '4:5' || post.aspectRatio === '9:16' || post.aspectRatio === '1:1') {
+          setAspectRatio(post.aspectRatio);
+        }
+
+        // Case 1: post was created in the visual editor before -> restore exact state
+        if (post.editorState && post.editorState.slides && Array.isArray(post.editorState.slides)) {
+          setSlides(post.editorState.slides);
+          if (post.editorState.brandId) setBrandId(post.editorState.brandId);
+          if (post.editorState.aspectRatio) setAspectRatio(post.editorState.aspectRatio);
+          setMessage(`Post "${post.caption ? post.caption.slice(0, 30) : 'sem legenda'}" carregado do editor`);
+          setMessageType('success');
+          return;
+        }
+
+        // Case 2: imported from a normal post -> create one slide per image
+        const imageUrls: string[] = [];
+        if (post.isCarousel && post.images && post.images.length > 0) {
+          imageUrls.push(...post.images.map((img: any) => img.imageUrl));
+        } else if (post.imageUrl) {
+          imageUrls.push(post.imageUrl);
+        }
+
+        if (imageUrls.length > 0) {
+          const importedSlides: SlideState[] = imageUrls.map((url, idx) => ({
+            ...emptySlide(idx),
+            backgroundUrl: url,
+            renderedUrl: url, // Already rendered (this is the original image)
+            title: '',
+            subtitle: '',
+            overlayOpacity: 0,
+          }));
+          setSlides(importedSlides);
+          setActiveIdx(0);
+          setMessage(`${imageUrls.length} imagem${imageUrls.length > 1 ? 'ns' : ''} importada${imageUrls.length > 1 ? 's' : ''} como slide${imageUrls.length > 1 ? 's' : ''}. Edite e renderize de novo para aplicar mudancas.`);
+          setMessageType('success');
+        }
+      })
+      .catch((err: any) => {
+        setMessage(err.message || 'Erro ao carregar post');
+        setMessageType('error');
+      })
+      .finally(() => setLoadingPost(false));
+  }, [postIdParam]);
 
   function updateActive(patch: Partial<SlideState>) {
     setSlides((prev) => prev.map((s, i) => (i === activeIdx ? { ...s, ...patch, renderedUrl: undefined } : s)));
@@ -237,27 +298,47 @@ export default function VisualEditorPage() {
       if (urls.length === 0) throw new Error('Nenhum slide renderizado');
 
       const isCarousel = urls.length >= 2;
-      const payload: Record<string, unknown> = {
-        caption,
-        hashtags: hashtags.split(',').map((h) => h.trim()).filter(Boolean),
-        aspectRatio,
-        editorState: { slides: finalSlides, brandId, aspectRatio },
-      };
-      if (isCarousel) {
-        payload.isCarousel = true;
-        payload.images = urls.map((url, idx) => ({ imageUrl: url, order: idx }));
-      } else {
-        payload.imageUrl = urls[0];
-      }
+      const editorState = { slides: finalSlides, brandId, aspectRatio };
 
-      const post = (await api.createPost(payload)) as any;
+      let postId: string;
+
+      if (currentPostId) {
+        // UPDATE existing post
+        const updatePayload: Record<string, unknown> = {
+          caption,
+          hashtags: hashtags.split(',').map((h) => h.trim()).filter(Boolean),
+          aspectRatio,
+          editorState,
+          isCarousel,
+          imageUrl: urls[0],
+        };
+        await api.updatePost(currentPostId, updatePayload);
+        postId = currentPostId;
+        setMessage('Post atualizado!');
+      } else {
+        // CREATE new post
+        const payload: Record<string, unknown> = {
+          caption,
+          hashtags: hashtags.split(',').map((h) => h.trim()).filter(Boolean),
+          aspectRatio,
+          editorState,
+        };
+        if (isCarousel) {
+          payload.isCarousel = true;
+          payload.images = urls.map((url, idx) => ({ imageUrl: url, order: idx }));
+        } else {
+          payload.imageUrl = urls[0];
+        }
+        const post = (await api.createPost(payload)) as any;
+        postId = post.id;
+        setMessage(action === 'schedule' ? 'Post agendado!' : 'Rascunho salvo!');
+      }
 
       if (action === 'schedule' && scheduledAt) {
-        await api.schedulePost(post.id, new Date(scheduledAt).toISOString());
+        await api.schedulePost(postId, new Date(scheduledAt).toISOString());
         setMessage('Post agendado!');
-      } else {
-        setMessage('Rascunho salvo!');
       }
+
       setMessageType('success');
       setTimeout(() => router.push('/posts'), 1500);
     } catch (err: any) {
@@ -277,8 +358,20 @@ export default function VisualEditorPage() {
           <Link href="/posts" className="text-xs text-text-secondary hover:text-primary inline-flex items-center gap-1 mb-1">
             <ChevronLeft className="w-3.5 h-3.5" /> Voltar
           </Link>
-          <h1 className="text-page-title text-text-primary">Editor Visual</h1>
-          <p className="text-sm text-text-secondary mt-0.5">Crie carrosseis no estilo canvas. Click num slide para editar.</p>
+          <h1 className="text-page-title text-text-primary flex items-center gap-3">
+            Editor Visual
+            {currentPostId && (
+              <span className="text-[11px] font-semibold px-2 py-1 rounded-badge bg-primary/10 text-primary">
+                EDITANDO POST
+              </span>
+            )}
+            {loadingPost && <Loader2 className="w-4 h-4 animate-spin text-primary" />}
+          </h1>
+          <p className="text-sm text-text-secondary mt-0.5">
+            {currentPostId
+              ? 'Edite os slides e salve para atualizar o post existente'
+              : 'Crie carrosseis no estilo canvas. Click num slide para editar.'}
+          </p>
         </div>
 
         <div className="flex items-center gap-2">

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { api } from '../../lib/api';
-import { Plus, Trash2, Send, Calendar, X, Loader2, FileText, Image as ImageIcon, Layers, ChevronLeft, ChevronRight, Pencil, Video as VideoIcon, Film } from 'lucide-react';
+import { Plus, Trash2, Send, Calendar, X, Loader2, FileText, Image as ImageIcon, Layers, ChevronLeft, ChevronRight, Pencil, Video as VideoIcon, Film, Wand2 } from 'lucide-react';
 
 const STATUS_BADGE: Record<string, string> = {
   DRAFT: 'badge-draft',
@@ -275,11 +275,20 @@ export default function PostsList() {
                         {new Date(post.scheduledAt).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                       </span>
                     )}
+                    {(post.status !== 'PUBLISHING' && post.status !== 'PUBLISHED' && post.mediaType !== 'VIDEO') && (
+                      <Link
+                        href={`/posts/visual-editor?postId=${post.id}`}
+                        className="px-2.5 py-1.5 rounded-badge text-xs bg-fuchsia-50 text-fuchsia-600 hover:bg-fuchsia-100 transition-colors"
+                        title="Abrir no Editor Visual"
+                      >
+                        <Wand2 className="w-3.5 h-3.5" strokeWidth={1.5} />
+                      </Link>
+                    )}
                     {(post.status !== 'PUBLISHING' && post.status !== 'PUBLISHED') && (
                       <button
                         onClick={() => openEditModal(post)}
                         className="px-2.5 py-1.5 rounded-badge text-xs bg-violet-50 text-violet-600 hover:bg-violet-100 transition-colors"
-                        title="Editar"
+                        title="Editar legenda/agendamento"
                       >
                         <Pencil className="w-3.5 h-3.5" strokeWidth={1.5} />
                       </button>
