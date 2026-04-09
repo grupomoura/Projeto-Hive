@@ -39,6 +39,11 @@ interface SlideState {
   cornerTopLeft: string;
   cornerTopRight: string;
   cornerBottomLeft: string;
+  cornerBottomRight: string;
+  // Slide indicators
+  showIndicators: boolean;
+  totalSlides: number;
+  slideNumber: number;
   // Render result
   renderedUrl?: string;
 }
@@ -104,6 +109,10 @@ function emptySlide(idx: number, tpl: TemplateId = idx === 0 ? 'hero' : 'content
     cornerTopLeft: '',
     cornerTopRight: '',
     cornerBottomLeft: '',
+    cornerBottomRight: '',
+    showIndicators: true,
+    totalSlides: 5,
+    slideNumber: idx + 1,
     renderedUrl: undefined,
   };
 }
@@ -118,39 +127,51 @@ function buildSlideHtml(s: SlideState): string {
   const font = `'${s.fontFamily}', sans-serif`;
   const color = s.titleColor;
   const shadow = 'text-shadow:0 6px 40px rgba(0,0,0,0.6);';
-  const shadowSm = 'text-shadow:0 4px 20px rgba(0,0,0,0.5);';
+  const shadowSm = 'text-shadow:0 3px 16px rgba(0,0,0,0.5);';
 
   const glassOpen = s.glassEffect
-    ? `<div style="background:rgba(0,0,0,0.35);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:24px;padding:48px;max-width:85%;">`
+    ? `<div style="background:rgba(0,0,0,0.35);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-radius:24px;padding:48px;max-width:88%;">`
     : '';
   const glassClose = s.glassEffect ? '</div>' : '';
 
-  // Position CSS
+  // Position CSS — content area lives between top bar (90px) and bottom bar (90px)
   const posMap: Record<Position, string> = {
-    'top-left': 'top:80px;left:80px;text-align:left;',
-    'top-center': 'top:80px;left:0;right:0;text-align:center;align-items:center;',
-    'top-right': 'top:80px;right:80px;text-align:right;align-items:flex-end;',
-    'middle-left': 'inset:0;text-align:left;padding-left:80px;justify-content:center;',
-    'middle-center': 'inset:0;text-align:center;align-items:center;justify-content:center;',
-    'middle-right': 'inset:0;text-align:right;align-items:flex-end;padding-right:80px;justify-content:center;',
-    'bottom-left': 'bottom:120px;left:80px;text-align:left;',
-    'bottom-center': 'bottom:120px;left:0;right:0;text-align:center;align-items:center;',
-    'bottom-right': 'bottom:120px;right:80px;text-align:right;align-items:flex-end;',
+    'top-left': 'top:100px;left:60px;right:60px;text-align:left;',
+    'top-center': 'top:100px;left:60px;right:60px;text-align:center;align-items:center;',
+    'top-right': 'top:100px;left:60px;right:60px;text-align:right;align-items:flex-end;',
+    'middle-left': 'top:100px;bottom:100px;left:60px;right:60px;text-align:left;justify-content:center;',
+    'middle-center': 'top:100px;bottom:100px;left:60px;right:60px;text-align:center;align-items:center;justify-content:center;',
+    'middle-right': 'top:100px;bottom:100px;left:60px;right:60px;text-align:right;align-items:flex-end;justify-content:center;',
+    'bottom-left': 'bottom:100px;left:60px;right:60px;text-align:left;justify-content:flex-end;',
+    'bottom-center': 'bottom:100px;left:60px;right:60px;text-align:center;align-items:center;justify-content:flex-end;',
+    'bottom-right': 'bottom:100px;left:60px;right:60px;text-align:right;align-items:flex-end;justify-content:flex-end;',
   };
   const pos = posMap[s.position];
 
+  // ── 4 corners ──
   const corners = [
-    s.cornerTopLeft && `<div style="position:absolute;top:32px;left:32px;font-size:20px;color:${color};opacity:0.8;font-family:${font};${shadowSm}">${escHtml(s.cornerTopLeft)}</div>`,
-    s.cornerTopRight && `<div style="position:absolute;top:32px;right:32px;font-size:20px;color:${color};opacity:0.8;font-family:${font};${shadowSm}">${escHtml(s.cornerTopRight)}</div>`,
-    s.cornerBottomLeft && `<div style="position:absolute;bottom:32px;left:32px;font-size:20px;color:${color};opacity:0.8;font-family:${font};${shadowSm}">${escHtml(s.cornerBottomLeft)}</div>`,
+    s.cornerTopLeft && `<div style="position:absolute;top:36px;left:40px;font-size:20px;color:${color};opacity:0.85;font-family:${font};${shadowSm}">${escHtml(s.cornerTopLeft)}</div>`,
+    s.cornerTopRight && `<div style="position:absolute;top:36px;right:40px;font-size:20px;color:${color};opacity:0.85;font-family:${font};${shadowSm}">${escHtml(s.cornerTopRight)}</div>`,
+    s.cornerBottomLeft && `<div style="position:absolute;bottom:36px;left:40px;font-size:20px;color:${color};opacity:0.85;font-family:${font};${shadowSm}">${escHtml(s.cornerBottomLeft)}</div>`,
+    s.cornerBottomRight && `<div style="position:absolute;bottom:36px;right:40px;font-size:20px;color:${color};opacity:0.85;font-family:${font};${shadowSm}">${escHtml(s.cornerBottomRight)}</div>`,
   ].filter(Boolean).join('\n');
 
+  // ── Slide indicators (dots) ──
+  let indicatorsHtml = '';
+  if (s.showIndicators && s.totalSlides > 1) {
+    const dots = Array.from({ length: s.totalSlides }, (_, i) =>
+      `<span style="display:inline-block;width:${i + 1 === s.slideNumber ? '24px' : '8px'};height:8px;border-radius:4px;background:${i + 1 === s.slideNumber ? color : 'rgba(255,255,255,0.4)'};transition:width 0.2s;"></span>`
+    ).join('');
+    indicatorsHtml = `<div style="position:absolute;bottom:36px;left:50%;transform:translateX(-50%);display:flex;gap:6px;align-items:center;">${dots}</div>`;
+  }
+
+  // ── Content by template ──
   const labelHtml = s.label
     ? `<div style="font-size:16px;font-weight:700;text-transform:uppercase;letter-spacing:3px;color:var(--brand-accent,${color});opacity:0.85;font-family:${font};${shadowSm}">${escHtml(s.label)}</div>`
     : '';
 
   const subtitleHtml = s.subtitle
-    ? `<div style="font-size:28px;font-weight:400;color:${color};opacity:0.9;line-height:1.4;font-family:${font};${shadowSm};max-width:90%;">${escHtml(s.subtitle)}</div>`
+    ? `<div style="font-size:28px;font-weight:400;color:${color};opacity:0.9;line-height:1.4;font-family:${font};${shadowSm}">${escHtml(s.subtitle)}</div>`
     : '';
 
   let content = '';
@@ -159,7 +180,7 @@ function buildSlideHtml(s: SlideState): string {
     case 'hero':
       content = `
         ${labelHtml}
-        <div style="font-size:72px;font-weight:${s.fontWeight};color:${color};line-height:1.05;letter-spacing:-0.02em;font-family:${font};${shadow};max-width:90%;">${escHtml(s.title)}</div>
+        <div style="font-size:72px;font-weight:${s.fontWeight};color:${color};line-height:1.05;letter-spacing:-0.02em;font-family:${font};${shadow}">${escHtml(s.title)}</div>
         ${subtitleHtml}
       `;
       break;
@@ -167,7 +188,7 @@ function buildSlideHtml(s: SlideState): string {
     case 'list':
       content = `
         ${labelHtml}
-        <div style="font-size:56px;font-weight:${s.fontWeight};color:${color};line-height:1.1;letter-spacing:-0.01em;font-family:${font};${shadow};max-width:90%;">${escHtml(s.title)}</div>
+        <div style="font-size:56px;font-weight:${s.fontWeight};color:${color};line-height:1.1;letter-spacing:-0.01em;font-family:${font};${shadow}">${escHtml(s.title)}</div>
         ${subtitleHtml}
       `;
       break;
@@ -182,7 +203,7 @@ function buildSlideHtml(s: SlideState): string {
     case 'quote':
       content = `
         <div style="font-size:120px;color:var(--brand-primary,${color});opacity:0.3;line-height:0.5;font-family:Georgia,serif;">&ldquo;</div>
-        <div style="font-size:48px;font-weight:400;font-style:italic;color:${color};line-height:1.35;font-family:Georgia,serif;${shadow};max-width:85%;">${escHtml(s.title)}</div>
+        <div style="font-size:48px;font-weight:400;font-style:italic;color:${color};line-height:1.35;font-family:Georgia,serif;${shadow}">${escHtml(s.title)}</div>
         ${s.subtitle ? `<div style="font-size:22px;font-weight:700;text-transform:uppercase;letter-spacing:3px;color:var(--brand-accent,${color});font-family:${font};margin-top:24px;">${escHtml(s.subtitle)}</div>` : ''}
       `;
       break;
@@ -197,7 +218,8 @@ function buildSlideHtml(s: SlideState): string {
 
   return `
     ${corners}
-    <div style="position:absolute;${pos};display:flex;flex-direction:column;gap:20px;padding:40px;font-family:${font};">
+    ${indicatorsHtml}
+    <div style="position:absolute;${pos};display:flex;flex-direction:column;gap:20px;font-family:${font};">
       ${glassOpen}
       ${content}
       ${glassClose}
@@ -353,8 +375,11 @@ export default function VisualEditorPage() {
     setRenderingAll(true);
     setMessage('');
     try {
+      const total = slides.length;
       const updated: SlideState[] = [];
-      for (const slide of slides) {
+      for (let i = 0; i < slides.length; i++) {
+        // Inject correct slideNumber/totalSlides before rendering
+        const slide = { ...slides[i], slideNumber: i + 1, totalSlides: total };
         const url = await renderSlide(slide);
         updated.push({ ...slide, renderedUrl: url });
       }
@@ -369,8 +394,10 @@ export default function VisualEditorPage() {
     setSavingPost(true);
     setMessage('');
     try {
+      const total = slides.length;
       const finalSlides: SlideState[] = [];
-      for (const slide of slides) {
+      for (let i = 0; i < slides.length; i++) {
+        const slide = { ...slides[i], slideNumber: i + 1, totalSlides: total };
         if (slide.renderedUrl) finalSlides.push(slide);
         else { const url = await renderSlide(slide); finalSlides.push({ ...slide, renderedUrl: url }); }
       }
@@ -658,8 +685,21 @@ export default function VisualEditorPage() {
             <div className="grid grid-cols-2 gap-2">
               <input value={active.cornerTopLeft} onChange={(e) => updateActive({ cornerTopLeft: e.target.value })} placeholder="Sup. esq (ex: @user)" className="input-field text-[10px]" />
               <input value={active.cornerTopRight} onChange={(e) => updateActive({ cornerTopRight: e.target.value })} placeholder="Sup. dir (ex: Marca)" className="input-field text-[10px]" />
-              <input value={active.cornerBottomLeft} onChange={(e) => updateActive({ cornerBottomLeft: e.target.value })} placeholder="Inf. esq (ex: 1/5)" className="input-field text-[10px]" />
+              <input value={active.cornerBottomLeft} onChange={(e) => updateActive({ cornerBottomLeft: e.target.value })} placeholder="Inf. esq (ex: IA para Devs)" className="input-field text-[10px]" />
+              <input value={active.cornerBottomRight} onChange={(e) => updateActive({ cornerBottomRight: e.target.value })} placeholder="Inf. dir (ex: arrasta)" className="input-field text-[10px]" />
             </div>
+          </div>
+
+          {/* Slide indicators */}
+          <div className="card p-4 space-y-2">
+            <h3 className="text-[11px] font-bold text-text-muted uppercase tracking-wider">Indicadores de slide</h3>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" checked={active.showIndicators} onChange={(e) => updateActive({ showIndicators: e.target.checked })} className="w-3.5 h-3.5 rounded text-primary" />
+              <span className="text-[10px] text-text-secondary">Mostrar bolinhas de navegacao</span>
+            </label>
+            {active.showIndicators && (
+              <p className="text-[10px] text-text-muted">Slide {active.slideNumber} de {slides.length} — ajustado automaticamente ao renderizar</p>
+            )}
           </div>
         </div>
       </div>
