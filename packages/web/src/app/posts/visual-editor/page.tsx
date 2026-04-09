@@ -131,11 +131,11 @@ function escHtml(s: string) {
 function getSafeZone(aspectRatio: string) {
   switch (aspectRatio) {
     case '9:16': // Stories/Reels - UI covers 250px top + bottom
-      return { top: 250, bottom: 250, left: 60, right: 60, cornerInset: 260, indicatorBottom: 260 };
+      return { top: 270, bottom: 270, left: 80, right: 80, cornerInset: 280, indicatorBottom: 280 };
     case '4:5':  // Portrait feed - base covered by like/save buttons
-      return { top: 80, bottom: 150, left: 60, right: 60, cornerInset: 44, indicatorBottom: 44 };
+      return { top: 100, bottom: 170, left: 80, right: 80, cornerInset: 64, indicatorBottom: 64 };
     default:     // 1:1 square
-      return { top: 80, bottom: 80, left: 60, right: 60, cornerInset: 40, indicatorBottom: 40 };
+      return { top: 100, bottom: 100, left: 80, right: 80, cornerInset: 60, indicatorBottom: 60 };
   }
 }
 
