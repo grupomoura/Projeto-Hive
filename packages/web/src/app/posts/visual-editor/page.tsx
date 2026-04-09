@@ -357,19 +357,27 @@ export default function VisualEditorPage() {
                         : `rgba(0,0,0,${slide.overlayOpacity})`
                     }} />
 
-                    {/* Live preview: 1080px source scaled to fit via wrapper */}
-                    <div className="absolute inset-0 overflow-hidden">
+                    {/* Live preview: 1080px source scaled to fit via ResizeObserver */}
+                    <div className="absolute inset-0 overflow-hidden"
+                      ref={(container) => {
+                        if (!container) return;
+                        const inner = container.firstElementChild as HTMLElement;
+                        if (!inner) return;
+                        const update = () => {
+                          const s = container.offsetWidth / 1080;
+                          inner.style.transform = `scale(${s})`;
+                        };
+                        update();
+                        const ro = new ResizeObserver(update);
+                        ro.observe(container);
+                        (container as any)._ro?.disconnect();
+                        (container as any)._ro = ro;
+                      }}
+                    >
                       <div style={{
                           width: '1080px',
                           height: previewH,
-                          transform: 'scale(var(--s))',
                           transformOrigin: 'top left',
-                        }}
-                        ref={(el) => {
-                          if (el && el.parentElement) {
-                            const s = el.parentElement.offsetWidth / 1080;
-                            el.style.setProperty('--s', String(s));
-                          }
                         }}
                         dangerouslySetInnerHTML={{ __html: buildSlideHtml(
                           { ...slide, slideNumber: idx + 1, totalSlides: slides.length },
