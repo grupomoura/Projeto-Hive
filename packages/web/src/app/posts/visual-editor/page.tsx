@@ -80,7 +80,12 @@ export default function VisualEditorPage() {
         }
         if (post.aspectRatio) setAspectRatio(post.aspectRatio as AspectRatio);
         if (post.editorState?.slides?.length) {
-          setSlides(post.editorState.slides);
+          // Merge each slide with defaults to fill missing fields from MCP/Antigravity
+          setSlides(post.editorState.slides.map((s: any, i: number) => ({
+            ...emptySlide(i, s.template || (i === 0 ? 'hero' : 'content')),
+            ...s,
+            id: s.id || String(i),
+          })));
           if (post.editorState.brandId) setBrandId(post.editorState.brandId);
           if (post.editorState.globalStyle) setGlobalStyle(post.editorState.globalStyle);
           if (post.editorState.aspectRatio) setAspectRatio(post.editorState.aspectRatio as AspectRatio);

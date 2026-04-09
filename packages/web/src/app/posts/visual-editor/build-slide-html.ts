@@ -86,6 +86,7 @@ function buildCornerIconSvg(icon: CornerIcon, color: string, size: number): stri
 }
 
 function buildWordHtml(text: string, highlights: Record<number, WordFormat>, defaultColor: string, font: string, fontSize: number, fontWeight: number, letterSpacing: number, shadow: string): string {
+  if (!text) return '';
   const words = text.split(' ');
   if (Object.keys(highlights).length === 0) {
     return `<span style="font-size:${fontSize}px;font-weight:${fontWeight};color:${defaultColor};letter-spacing:${letterSpacing}em;font-family:${font};${shadow}">${escHtml(text)}</span>`;
@@ -108,9 +109,9 @@ export function buildSlideHtml(
   opts: { aspectRatio: string; brandLogoUrl: string; brandName?: string; globalStyle: GlobalStyle }
 ): string {
   const { aspectRatio, brandLogoUrl, brandName, globalStyle: gs } = opts;
-  const font = `'${s.fontFamily}', sans-serif`;
-  const subFont = `'${s.subtitleFontFamily}', sans-serif`;
-  const color = s.titleColor;
+  const font = `'${s.fontFamily || 'Inter'}', sans-serif`;
+  const subFont = `'${s.subtitleFontFamily || 'Inter'}', sans-serif`;
+  const color = s.titleColor || '#ffffff';
   const shadow = 'text-shadow:0 6px 40px rgba(0,0,0,0.6);';
   const shadowSm = 'text-shadow:0 3px 16px rgba(0,0,0,0.5);';
   const sz = getSafeZone(aspectRatio);
