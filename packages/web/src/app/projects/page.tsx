@@ -76,7 +76,7 @@ export default function ProjectsList() {
             className={`px-4 py-2 rounded-btn text-xs font-semibold transition-all duration-200 ${
               filter === f.value
                 ? 'bg-primary text-white shadow-cta'
-                : 'bg-white text-text-secondary border border-border hover:border-primary hover:text-primary'
+                : 'bg-bg-card text-text-secondary border border-border hover:border-primary hover:text-primary'
             }`}
           >
             {f.label}

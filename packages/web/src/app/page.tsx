@@ -144,10 +144,10 @@ export default function Dashboard() {
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
         {[
           { key: 'total', label: 'TOTAL POSTS', icon: FileText, accent: 'from-primary to-accent-pink', iconBg: 'bg-primary/10', iconColor: 'text-primary' },
-          { key: 'draft', label: 'RASCUNHOS', icon: Edit3, accent: 'from-status-draft to-status-draft', iconBg: 'bg-gray-100', iconColor: 'text-status-draft' },
-          { key: 'scheduled', label: 'AGENDADOS', icon: Clock, accent: 'from-status-scheduled to-status-scheduled', iconBg: 'bg-blue-50', iconColor: 'text-status-scheduled' },
-          { key: 'published', label: 'PUBLICADOS', icon: CheckCircle, accent: 'from-status-published to-status-published', iconBg: 'bg-emerald-50', iconColor: 'text-status-published' },
-          { key: 'failed', label: 'FALHAS', icon: AlertCircle, accent: 'from-status-failed to-status-failed', iconBg: 'bg-red-50', iconColor: 'text-status-failed' },
+          { key: 'draft', label: 'RASCUNHOS', icon: Edit3, accent: 'from-status-draft to-status-draft', iconBg: 'bg-bg-card-hover', iconColor: 'text-status-draft' },
+          { key: 'scheduled', label: 'AGENDADOS', icon: Clock, accent: 'from-status-scheduled to-status-scheduled', iconBg: 'bg-blue-500/10', iconColor: 'text-status-scheduled' },
+          { key: 'published', label: 'PUBLICADOS', icon: CheckCircle, accent: 'from-status-published to-status-published', iconBg: 'bg-emerald-500/10', iconColor: 'text-status-published' },
+          { key: 'failed', label: 'FALHAS', icon: AlertCircle, accent: 'from-status-failed to-status-failed', iconBg: 'bg-red-500/10', iconColor: 'text-status-failed' },
         ].map((card) => {
           const Icon = card.icon;
           const value = stats[card.key as keyof Stats];
@@ -170,7 +170,7 @@ export default function Dashboard() {
         <div className="lg:col-span-3 card p-6">
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center">
+              <div className="w-7 h-7 rounded-lg bg-blue-500/10 flex items-center justify-center">
                 <Clock className="w-4 h-4 text-status-scheduled" strokeWidth={1.5} />
               </div>
               <h2 className="text-section-title text-text-primary">Proximos Agendados</h2>
@@ -188,7 +188,7 @@ export default function Dashboard() {
               </Link>
             </div>
           ) : (
-            <div className="divide-y divide-[#F0EFEC]">
+            <div className="divide-y divide-border">
               {upcomingPosts.map((post) => (
                 <div key={post.id} className="flex items-center gap-3 py-3 px-1 hover:bg-bg-card-hover rounded-lg transition-colors -mx-1">
                   {post.imageUrl ? (
@@ -215,7 +215,7 @@ export default function Dashboard() {
         <div className="lg:col-span-2 card p-6">
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-2.5">
-              <div className="w-7 h-7 rounded-lg bg-emerald-50 flex items-center justify-center">
+              <div className="w-7 h-7 rounded-lg bg-emerald-500/10 flex items-center justify-center">
                 <CheckCircle className="w-4 h-4 text-status-published" strokeWidth={1.5} />
               </div>
               <h2 className="text-section-title text-text-primary">Publicados Recentes</h2>
@@ -230,7 +230,7 @@ export default function Dashboard() {
               <p className="text-sm text-text-muted">Nenhum post publicado ainda</p>
             </div>
           ) : (
-            <div className="divide-y divide-[#F0EFEC]">
+            <div className="divide-y divide-border">
               {recentPosts.map((post) => (
                 <div key={post.id} className="flex items-center gap-3 py-3 px-1 hover:bg-bg-card-hover rounded-lg transition-colors -mx-1">
                   {post.imageUrl ? (
@@ -346,7 +346,7 @@ export default function Dashboard() {
                   {media.media_url ? (
                     <img src={media.media_url} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                    <div className="w-full h-full flex items-center justify-center bg-bg-card-hover">
                       <ImageIcon className="w-6 h-6 text-text-muted" strokeWidth={1} />
                     </div>
                   )}
@@ -383,7 +383,7 @@ export default function Dashboard() {
         </Link>
         <Link href="/calendar" className="card p-5 border border-border hover:border-primary hover:-translate-y-0.5 group cursor-pointer">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-50 group-hover:bg-blue-100 transition-colors">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-500/10 group-hover:bg-blue-500/20 transition-colors">
               <Calendar className="w-5 h-5 text-status-scheduled" strokeWidth={1.5} />
             </div>
             <div>
@@ -394,7 +394,7 @@ export default function Dashboard() {
         </Link>
         <Link href="/tasks" className="card p-5 border border-border hover:border-primary hover:-translate-y-0.5 group cursor-pointer">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-amber-50 group-hover:bg-amber-100 transition-colors">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-amber-500/10 group-hover:bg-amber-500/20 transition-colors">
               <CheckSquare className="w-5 h-5 text-amber-600" strokeWidth={1.5} />
             </div>
             <div>
@@ -405,7 +405,7 @@ export default function Dashboard() {
         </Link>
         <Link href="/projects" className="card p-5 border border-border hover:border-primary hover:-translate-y-0.5 group cursor-pointer">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-purple-50 group-hover:bg-purple-100 transition-colors">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-purple-500/10 group-hover:bg-purple-500/20 transition-colors">
               <FolderKanban className="w-5 h-5 text-purple-600" strokeWidth={1.5} />
             </div>
             <div>
@@ -416,7 +416,7 @@ export default function Dashboard() {
         </Link>
         <Link href="/settings" className="card p-5 border border-border hover:border-primary hover:-translate-y-0.5 group cursor-pointer">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-gray-100 group-hover:bg-gray-200 transition-colors">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-bg-card-hover group-hover:bg-bg-main transition-colors">
               <Settings className="w-5 h-5 text-text-secondary" strokeWidth={1.5} />
             </div>
             <div>

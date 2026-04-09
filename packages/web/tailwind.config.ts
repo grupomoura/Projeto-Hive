@@ -2,13 +2,14 @@ import type { Config } from 'tailwindcss';
 
 const config: Config = {
   content: ['./src/**/*.{ts,tsx}'],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
-        // Backgrounds
-        'bg-main': '#F8F7F4',
-        'bg-card': '#FFFFFF',
-        'bg-card-hover': '#FAFAF8',
+        // Backgrounds — driven by CSS variables (auto dark mode)
+        'bg-main': 'var(--bg-main)',
+        'bg-card': 'var(--bg-card)',
+        'bg-card-hover': 'var(--bg-card-hover)',
 
         // Primary (roxo)
         primary: {
@@ -24,24 +25,24 @@ const config: Config = {
         // Status
         'status-scheduled': '#0984E3',
         'status-published': '#00B894',
-        'status-draft': '#636E72',
+        'status-draft': 'var(--text-secondary)',
         'status-failed': '#D63031',
 
-        // Text
-        'text-primary': '#2D3436',
-        'text-secondary': '#636E72',
-        'text-muted': '#B2BEC3',
+        // Text — driven by CSS variables
+        'text-primary': 'var(--text-primary)',
+        'text-secondary': 'var(--text-secondary)',
+        'text-muted': 'var(--text-muted)',
 
-        // Border
-        border: '#E8E6E1',
+        // Border — driven by CSS variable
+        border: 'var(--border)',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
       },
       boxShadow: {
-        sm: '0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06)',
-        md: '0 4px 12px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.04)',
-        lg: '0 10px 30px rgba(0,0,0,0.08)',
+        sm: '0 1px 3px var(--shadow-color, rgba(0,0,0,0.04)), 0 1px 2px var(--shadow-color, rgba(0,0,0,0.06))',
+        md: '0 4px 12px var(--shadow-color, rgba(0,0,0,0.05)), 0 2px 4px var(--shadow-color, rgba(0,0,0,0.04))',
+        lg: '0 10px 30px var(--shadow-color, rgba(0,0,0,0.08))',
         'cta': '0 4px 14px rgba(108, 92, 231, 0.3)',
         'cta-hover': '0 6px 20px rgba(108, 92, 231, 0.4)',
       },

@@ -16,7 +16,7 @@ const ROLE_COLORS: Record<string, string> = {
   OWNER: 'bg-amber-100 text-amber-700',
   ADMIN: 'bg-purple-100 text-purple-700',
   EDITOR: 'bg-blue-100 text-blue-700',
-  VIEWER: 'bg-gray-100 text-gray-600',
+  VIEWER: 'bg-bg-card-hover text-gray-600',
 };
 
 const ROLE_ICONS: Record<string, any> = {
@@ -183,7 +183,7 @@ export default function TeamPage() {
       </div>
 
       {error && (
-        <div className="mb-4 px-4 py-3 rounded-lg bg-red-50 border border-red-100 text-status-failed text-sm">
+        <div className="mb-4 px-4 py-3 rounded-lg bg-red-500/10 border border-red-500/20 text-status-failed text-sm">
           {error}
         </div>
       )}
@@ -317,7 +317,7 @@ export default function TeamPage() {
                           <select
                             value={member.role}
                             onChange={(e) => handleUpdateRole(member.id, e.target.value)}
-                            className="text-xs rounded-lg border border-border px-2 py-1.5 bg-white"
+                            className="text-xs rounded-lg border border-border px-2 py-1.5 bg-bg-card"
                           >
                             <option value="ADMIN">Administrador</option>
                             <option value="EDITOR">Editor</option>
@@ -351,7 +351,7 @@ export default function TeamPage() {
                             </button>
                             <button
                               onClick={() => handleRemoveMember(member.id, member.name || member.email)}
-                              className="p-1.5 rounded-lg text-text-muted hover:text-status-failed hover:bg-red-50 transition-colors"
+                              className="p-1.5 rounded-lg text-text-muted hover:text-status-failed hover:bg-red-500/10 transition-colors"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -375,7 +375,7 @@ export default function TeamPage() {
 
                 {/* Edit pages inline */}
                 {isEditing && (
-                  <div className="mt-3 ml-12 p-3 rounded-lg bg-white border border-border">
+                  <div className="mt-3 ml-12 p-3 rounded-lg bg-bg-card border border-border">
                     <p className="text-xs font-semibold text-text-secondary mb-2 uppercase tracking-wider">Paginas permitidas</p>
                     <div className="grid grid-cols-3 gap-2">
                       {ALL_PAGES.map((page) => (
@@ -472,7 +472,7 @@ export default function TeamPage() {
                       )}
                       <button
                         onClick={() => handleDeleteInvitation(inv.id)}
-                        className="p-1.5 rounded-lg text-text-muted hover:text-status-failed hover:bg-red-50 transition-colors"
+                        className="p-1.5 rounded-lg text-text-muted hover:text-status-failed hover:bg-red-500/10 transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

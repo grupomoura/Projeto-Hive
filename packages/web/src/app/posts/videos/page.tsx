@@ -342,7 +342,7 @@ export default function VideosBulkPage() {
                     className={`flex-1 px-3 py-2 rounded-lg text-xs font-semibold border transition-all ${
                       defaultPublishMode === 'REELS'
                         ? 'border-primary bg-primary/[0.08] text-primary'
-                        : 'border-border bg-white text-text-secondary hover:border-primary/50'
+                        : 'border-border bg-bg-card text-text-secondary hover:border-primary/50'
                     }`}
                   >
                     Reels (com legenda)
@@ -355,7 +355,7 @@ export default function VideosBulkPage() {
                     className={`flex-1 px-3 py-2 rounded-lg text-xs font-semibold border transition-all ${
                       defaultPublishMode === 'STORIES'
                         ? 'border-primary bg-primary/[0.08] text-primary'
-                        : 'border-border bg-white text-text-secondary hover:border-primary/50'
+                        : 'border-border bg-bg-card text-text-secondary hover:border-primary/50'
                     }`}
                   >
                     Stories (sem legenda)
@@ -427,33 +427,33 @@ export default function VideosBulkPage() {
                           <span className="text-[10px] px-2 py-0.5 rounded-badge bg-bg-main text-text-muted font-semibold uppercase">Pendente</span>
                         )}
                         {item.status === 'uploading' && (
-                          <span className="text-[10px] px-2 py-0.5 rounded-badge bg-blue-50 text-status-scheduled font-semibold uppercase flex items-center gap-1">
+                          <span className="text-[10px] px-2 py-0.5 rounded-badge bg-blue-500/10 text-status-scheduled font-semibold uppercase flex items-center gap-1">
                             <Loader2 className="w-3 h-3 animate-spin" /> {item.progress}%
                           </span>
                         )}
                         {item.status === 'uploaded' && (
-                          <span className="text-[10px] px-2 py-0.5 rounded-badge bg-emerald-50 text-status-published font-semibold uppercase flex items-center gap-1">
+                          <span className="text-[10px] px-2 py-0.5 rounded-badge bg-emerald-500/10 text-status-published font-semibold uppercase flex items-center gap-1">
                             <CheckCircle2 className="w-3 h-3" /> Enviado
                           </span>
                         )}
                         {item.status === 'saving' && (
-                          <span className="text-[10px] px-2 py-0.5 rounded-badge bg-blue-50 text-status-scheduled font-semibold uppercase flex items-center gap-1">
+                          <span className="text-[10px] px-2 py-0.5 rounded-badge bg-blue-500/10 text-status-scheduled font-semibold uppercase flex items-center gap-1">
                             <Loader2 className="w-3 h-3 animate-spin" /> Salvando
                           </span>
                         )}
                         {item.status === 'saved' && (
-                          <span className="text-[10px] px-2 py-0.5 rounded-badge bg-emerald-50 text-status-published font-semibold uppercase flex items-center gap-1">
+                          <span className="text-[10px] px-2 py-0.5 rounded-badge bg-emerald-500/10 text-status-published font-semibold uppercase flex items-center gap-1">
                             <CheckCircle2 className="w-3 h-3" /> Salvo
                           </span>
                         )}
                         {item.status === 'failed' && (
-                          <span className="text-[10px] px-2 py-0.5 rounded-badge bg-red-50 text-status-failed font-semibold uppercase flex items-center gap-1" title={item.error}>
+                          <span className="text-[10px] px-2 py-0.5 rounded-badge bg-red-500/10 text-status-failed font-semibold uppercase flex items-center gap-1" title={item.error}>
                             <AlertCircle className="w-3 h-3" /> Falha
                           </span>
                         )}
                         <button
                           onClick={() => removeItem(item.id)}
-                          className="p-1.5 rounded hover:bg-red-50 text-text-muted hover:text-status-failed transition-colors"
+                          className="p-1.5 rounded hover:bg-red-500/10 text-text-muted hover:text-status-failed transition-colors"
                           title="Remover"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -480,7 +480,7 @@ export default function VideosBulkPage() {
                           className={`px-2.5 py-1 rounded-badge text-[10px] font-bold border transition-all ${
                             item.publishMode === 'REELS'
                               ? 'border-primary bg-primary text-white'
-                              : 'border-border bg-white text-text-secondary'
+                              : 'border-border bg-bg-card text-text-secondary'
                           }`}
                         >
                           REELS
@@ -490,7 +490,7 @@ export default function VideosBulkPage() {
                           className={`px-2.5 py-1 rounded-badge text-[10px] font-bold border transition-all ${
                             item.publishMode === 'STORIES'
                               ? 'border-primary bg-primary text-white'
-                              : 'border-border bg-white text-text-secondary'
+                              : 'border-border bg-bg-card text-text-secondary'
                           }`}
                         >
                           STORIES

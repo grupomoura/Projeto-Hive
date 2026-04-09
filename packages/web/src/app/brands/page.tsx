@@ -253,7 +253,7 @@ export default function BrandsPage() {
                 {!brand.isDefault && (
                   <button
                     onClick={() => handleSetDefault(brand.id)}
-                    className="px-3 py-1.5 rounded-badge text-xs font-semibold bg-amber-50 text-amber-600 hover:bg-amber-100 transition-colors"
+                    className="px-3 py-1.5 rounded-badge text-xs font-semibold bg-amber-500/10 text-amber-600 hover:bg-amber-100 transition-colors"
                     title="Tornar padrao"
                   >
                     <Star className="w-3.5 h-3.5" strokeWidth={1.5} />
@@ -261,7 +261,7 @@ export default function BrandsPage() {
                 )}
                 <button
                   onClick={() => handleDelete(brand.id)}
-                  className="px-3 py-1.5 rounded-badge text-xs bg-red-50 text-status-failed hover:bg-red-100 transition-colors"
+                  className="px-3 py-1.5 rounded-badge text-xs bg-red-500/10 text-status-failed hover:bg-red-100 transition-colors"
                   title="Deletar"
                 >
                   <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
@@ -275,7 +275,7 @@ export default function BrandsPage() {
       {/* Modal */}
       {modalOpen && (
         <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4 modal-backdrop" onClick={() => setModalOpen(false)}>
-          <div className="bg-white rounded-card w-full max-w-4xl shadow-lg modal-content max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-bg-card rounded-card w-full max-w-4xl shadow-lg modal-content max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
             {/* Header (sticky) */}
             <div className="flex items-center justify-between p-6 pb-4 border-b border-border">
               <div className="flex items-center gap-3">

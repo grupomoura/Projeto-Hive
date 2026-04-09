@@ -15,17 +15,17 @@ const PLATFORMS = [
 ];
 
 const PRIORITIES = [
-  { value: 'LOW', label: 'Baixa', color: 'bg-emerald-50 text-status-published border-emerald-200' },
-  { value: 'MEDIUM', label: 'Media', color: 'bg-blue-50 text-status-scheduled border-blue-200' },
-  { value: 'HIGH', label: 'Alta', color: 'bg-amber-50 text-amber-600 border-amber-200' },
-  { value: 'URGENT', label: 'Urgente', color: 'bg-red-50 text-status-failed border-red-200' },
+  { value: 'LOW', label: 'Baixa', color: 'bg-emerald-500/10 text-status-published border-emerald-200' },
+  { value: 'MEDIUM', label: 'Media', color: 'bg-blue-500/10 text-status-scheduled border-blue-200' },
+  { value: 'HIGH', label: 'Alta', color: 'bg-amber-500/10 text-amber-600 border-amber-200' },
+  { value: 'URGENT', label: 'Urgente', color: 'bg-red-500/10 text-status-failed border-red-200' },
 ];
 
 const STATUSES = [
-  { value: 'PENDING', label: 'Pendente', color: 'bg-amber-50 text-amber-600 border-amber-200' },
-  { value: 'IN_PROGRESS', label: 'Em Andamento', color: 'bg-blue-50 text-status-scheduled border-blue-200' },
-  { value: 'COMPLETED', label: 'Concluido', color: 'bg-emerald-50 text-status-published border-emerald-200' },
-  { value: 'CANCELLED', label: 'Cancelado', color: 'bg-red-50 text-status-failed border-red-200' },
+  { value: 'PENDING', label: 'Pendente', color: 'bg-amber-500/10 text-amber-600 border-amber-200' },
+  { value: 'IN_PROGRESS', label: 'Em Andamento', color: 'bg-blue-500/10 text-status-scheduled border-blue-200' },
+  { value: 'COMPLETED', label: 'Concluido', color: 'bg-emerald-500/10 text-status-published border-emerald-200' },
+  { value: 'CANCELLED', label: 'Cancelado', color: 'bg-red-500/10 text-status-failed border-red-200' },
 ];
 
 function toLocalDatetime(iso: string | null): string {
@@ -162,7 +162,7 @@ export default function EditTask() {
     <div className="max-w-6xl mx-auto animate-fade-in">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
-        <Link href="/tasks" className="w-9 h-9 rounded-lg bg-white border border-border flex items-center justify-center hover:border-primary transition-colors">
+        <Link href="/tasks" className="w-9 h-9 rounded-lg bg-bg-card border border-border flex items-center justify-center hover:border-primary transition-colors">
           <ArrowLeft className="w-4 h-4 text-text-secondary" />
         </Link>
         <div className="flex-1">
@@ -258,7 +258,7 @@ export default function EditTask() {
                   className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all border text-center ${
                     form.status === s.value
                       ? s.color + ' border-current'
-                      : 'bg-white text-text-secondary border-border hover:border-primary'
+                      : 'bg-bg-card text-text-secondary border-border hover:border-primary'
                   }`}
                 >
                   {s.label}
@@ -278,7 +278,7 @@ export default function EditTask() {
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
                     form.platform === p.value
                       ? 'bg-primary text-white border-primary'
-                      : 'bg-white text-text-secondary border-border hover:border-primary'
+                      : 'bg-bg-card text-text-secondary border-border hover:border-primary'
                   }`}
                 >
                   {p.label}
@@ -292,7 +292,7 @@ export default function EditTask() {
                   key={p.value}
                   onClick={() => set('priority', p.value)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
-                    form.priority === p.value ? p.color + ' border-current' : 'bg-white text-text-secondary border-border hover:border-primary'
+                    form.priority === p.value ? p.color + ' border-current' : 'bg-bg-card text-text-secondary border-border hover:border-primary'
                   }`}
                 >
                   {p.label}

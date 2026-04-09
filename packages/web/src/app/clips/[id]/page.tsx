@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 
 const STATUS_BADGES: Record<string, { bg: string; text: string; label: string }> = {
-  PENDING: { bg: 'bg-gray-100', text: 'text-gray-600', label: 'Pendente' },
+  PENDING: { bg: 'bg-bg-card-hover', text: 'text-gray-600', label: 'Pendente' },
   ANALYZING: { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Analisando...' },
   ANALYZED: { bg: 'bg-blue-100', text: 'text-blue-600', label: 'Analisado' },
   CLIPPING: { bg: 'bg-orange-100', text: 'text-orange-600', label: 'Cortando...' },
@@ -154,7 +154,7 @@ export default function ClipDetailPage() {
       )}
 
       {clip.status === 'FAILED' && (
-        <div className="card p-6 border-red-200 bg-red-50/50">
+        <div className="card p-6 border-red-200 bg-red-500/10">
           <div className="flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-status-failed flex-shrink-0 mt-0.5" />
             <div>
@@ -211,7 +211,7 @@ export default function ClipDetailPage() {
                       {moment.hook_reasons?.length > 0 && (
                         <div className="flex gap-1 mt-1.5">
                           {moment.hook_reasons.map((r: string) => (
-                            <span key={r} className="px-1.5 py-0.5 rounded bg-gray-100 text-[10px] text-text-muted">
+                            <span key={r} className="px-1.5 py-0.5 rounded bg-bg-card-hover text-[10px] text-text-muted">
                               {r}
                             </span>
                           ))}
@@ -323,7 +323,7 @@ export default function ClipDetailPage() {
                       download
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 text-text-secondary text-xs font-semibold hover:bg-gray-200 transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-bg-card-hover text-text-secondary text-xs font-semibold hover:bg-gray-200 transition-colors"
                     >
                       <FileText className="w-3.5 h-3.5" />
                       SRT
@@ -335,7 +335,7 @@ export default function ClipDetailPage() {
                       download
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-100 text-text-secondary text-xs font-semibold hover:bg-gray-200 transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-bg-card-hover text-text-secondary text-xs font-semibold hover:bg-gray-200 transition-colors"
                     >
                       <Subtitles className="w-3.5 h-3.5" />
                       ASS

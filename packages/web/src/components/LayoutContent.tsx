@@ -17,8 +17,7 @@ export function LayoutContent({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-screen">
       <Sidebar />
       <main className="flex-1 ml-60 p-8">
-        {/* Gradient bar decorativa */}
-        <div className="h-1 bg-gradient-to-r from-primary via-accent-pink to-accent-orange rounded-full mb-6" />
+        <div className="h-1 bg-gradient-to-r from-primary via-accent-pink to-accent-orange rounded-full mb-6 opacity-80" />
         {children}
       </main>
     </div>

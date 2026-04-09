@@ -144,7 +144,7 @@ export default function PostsList() {
             className={`px-4 py-2 rounded-btn text-xs font-semibold transition-all duration-200 ${
               filter === f.value
                 ? 'bg-primary text-white shadow-cta'
-                : 'bg-white text-text-secondary border border-border hover:border-primary hover:text-primary'
+                : 'bg-bg-card text-text-secondary border border-border hover:border-primary hover:text-primary'
             }`}
           >
             {f.label}
@@ -164,7 +164,7 @@ export default function PostsList() {
               <th className="px-5 py-3.5 text-right text-[11px] font-semibold text-text-muted uppercase tracking-wider">Acoes</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#F0EFEC]">
+          <tbody className="divide-y divide-border">
             {posts.map((post) => (
               <tr key={post.id} className="hover:bg-bg-card-hover transition-colors">
                 <td className="px-5 py-4">
@@ -248,7 +248,7 @@ export default function PostsList() {
                         <button
                           onClick={() => handlePublish(post.id)}
                           disabled={actionLoading === post.id}
-                          className="px-3 py-1.5 rounded-badge text-xs font-semibold bg-emerald-50 text-status-published hover:bg-emerald-100 transition-colors disabled:opacity-50"
+                          className="px-3 py-1.5 rounded-badge text-xs font-semibold bg-emerald-500/10 text-status-published hover:bg-emerald-100 transition-colors disabled:opacity-50"
                           title="Publicar"
                         >
                           {actionLoading === post.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5 inline mr-1" strokeWidth={1.5} />}
@@ -256,7 +256,7 @@ export default function PostsList() {
                         </button>
                         <button
                           onClick={() => { setScheduleModal(post.id); setScheduleDate(''); }}
-                          className="px-3 py-1.5 rounded-badge text-xs font-semibold bg-blue-50 text-status-scheduled hover:bg-blue-100 transition-colors"
+                          className="px-3 py-1.5 rounded-badge text-xs font-semibold bg-blue-500/10 text-status-scheduled hover:bg-blue-100 transition-colors"
                           title="Agendar"
                         >
                           <Calendar className="w-3.5 h-3.5 inline mr-1" strokeWidth={1.5} />
@@ -265,13 +265,13 @@ export default function PostsList() {
                       </>
                     )}
                     {post.status === 'PUBLISHING' && (
-                      <span className="px-3 py-1.5 rounded-badge text-xs font-medium bg-amber-50 text-amber-600 flex items-center gap-1.5">
+                      <span className="px-3 py-1.5 rounded-badge text-xs font-medium bg-amber-500/10 text-amber-600 flex items-center gap-1.5">
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
                         Publicando...
                       </span>
                     )}
                     {post.status === 'SCHEDULED' && (
-                      <span className="px-3 py-1.5 rounded-badge text-xs font-medium bg-blue-50 text-status-scheduled">
+                      <span className="px-3 py-1.5 rounded-badge text-xs font-medium bg-blue-500/10 text-status-scheduled">
                         {new Date(post.scheduledAt).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                       </span>
                     )}
@@ -295,7 +295,7 @@ export default function PostsList() {
                     )}
                     <button
                       onClick={() => handleDelete(post.id)}
-                      className="px-2.5 py-1.5 rounded-badge text-xs bg-red-50 text-status-failed hover:bg-red-100 transition-colors"
+                      className="px-2.5 py-1.5 rounded-badge text-xs bg-red-500/10 text-status-failed hover:bg-red-100 transition-colors"
                       title="Deletar"
                     >
                       <Trash2 className="w-3.5 h-3.5" strokeWidth={1.5} />
@@ -363,7 +363,7 @@ export default function PostsList() {
       {/* Edit Modal */}
       {editModal && (
         <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4 modal-backdrop" onClick={() => setEditModal(null)}>
-          <div className="bg-white rounded-card p-6 w-full max-w-md shadow-lg modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-bg-card rounded-card p-6 w-full max-w-md shadow-lg modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center gap-3 mb-5">
               <div className="w-10 h-10 rounded-xl bg-violet-50 flex items-center justify-center">
                 <Pencil className="w-5 h-5 text-violet-600" strokeWidth={1.5} />
@@ -431,9 +431,9 @@ export default function PostsList() {
       {/* Schedule Modal */}
       {scheduleModal && (
         <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4 modal-backdrop" onClick={() => setScheduleModal(null)}>
-          <div className="bg-white rounded-card p-6 w-full max-w-sm shadow-lg modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-bg-card rounded-card p-6 w-full max-w-sm shadow-lg modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center gap-3 mb-5">
-              <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
                 <Calendar className="w-5 h-5 text-status-scheduled" strokeWidth={1.5} />
               </div>
               <div>

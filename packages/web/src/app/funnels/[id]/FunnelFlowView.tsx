@@ -61,7 +61,7 @@ export interface FunnelFlowViewProps {
 // ── Custom Node: Stage ──
 function StageNodeComponent({ data }: { data: any }) {
   return (
-    <div className="rounded-xl border-2 shadow-sm bg-white min-w-[250px]" style={{ borderColor: data.color }}>
+    <div className="rounded-xl border-2 shadow-sm bg-bg-card min-w-[250px]" style={{ borderColor: data.color }}>
       <Handle type="target" position={Position.Left} className="!w-3 !h-3 !border-2 !border-white" style={{ background: data.color }} />
       <div className="px-4 py-3 rounded-t-[10px] flex items-center justify-between" style={{ backgroundColor: data.color + '18' }}>
         <div className="flex items-center gap-2">
@@ -78,14 +78,14 @@ function StageNodeComponent({ data }: { data: any }) {
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); data.onDelete(); }}
-            className="p-1 rounded text-text-muted hover:text-status-failed hover:bg-red-50 transition-colors"
+            className="p-1 rounded text-text-muted hover:text-status-failed hover:bg-red-500/10 transition-colors"
           >
             <Trash2 className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
       <div className="px-4 py-1.5">
-        <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+        <div className="w-full h-1.5 bg-bg-card-hover rounded-full overflow-hidden">
           <div className="h-full rounded-full transition-all" style={{ width: `${data.progress}%`, backgroundColor: data.color }} />
         </div>
       </div>
@@ -104,7 +104,7 @@ function StepNodeComponent({ data }: { data: any }) {
   };
 
   return (
-    <div className="rounded-lg border border-border bg-white shadow-sm min-w-[230px] hover:border-primary/30 transition-colors group">
+    <div className="rounded-lg border border-border bg-bg-card shadow-sm min-w-[230px] hover:border-primary/30 transition-colors group">
       <Handle type="target" position={Position.Top} className="!w-2.5 !h-2.5 !border-2 !border-white !bg-gray-400" />
       <div className="p-3">
         <div className="flex items-start gap-2">
@@ -143,7 +143,7 @@ function StepNodeComponent({ data }: { data: any }) {
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); data.onDelete(); }}
-              className="p-1 rounded text-text-muted hover:text-status-failed hover:bg-red-50 transition-colors"
+              className="p-1 rounded text-text-muted hover:text-status-failed hover:bg-red-500/10 transition-colors"
             >
               <Trash2 className="w-3 h-3" />
             </button>
@@ -379,7 +379,7 @@ function FunnelFlowInner({
   }
 
   return (
-    <div className="w-full rounded-xl border border-border bg-white overflow-hidden relative" style={{ height: '70vh' }}>
+    <div className="w-full rounded-xl border border-border bg-bg-card overflow-hidden relative" style={{ height: '70vh' }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -409,14 +409,14 @@ function FunnelFlowInner({
         <Panel position="top-left" className="flex gap-2">
           <button
             onClick={() => setShowAddStage(true)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white border border-border shadow-sm text-sm font-medium text-text-primary hover:border-primary/30 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-bg-card border border-border shadow-sm text-sm font-medium text-text-primary hover:border-primary/30 transition-colors"
           >
             <Plus className="w-4 h-4" />
             Nova Etapa
           </button>
           <button
             onClick={() => { if (funnel.stages.length > 0) setShowAddStep(funnel.stages[0].id); }}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white border border-border shadow-sm text-sm font-medium text-text-primary hover:border-primary/30 transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-bg-card border border-border shadow-sm text-sm font-medium text-text-primary hover:border-primary/30 transition-colors"
           >
             <Plus className="w-4 h-4" />
             Novo Passo
@@ -428,7 +428,7 @@ function FunnelFlowInner({
       {contextMenu && (
         <div className="fixed inset-0 z-40" onClick={() => setContextMenu(null)}>
           <div
-            className="absolute bg-white rounded-lg border border-border shadow-lg py-1 min-w-[160px] z-50"
+            className="absolute bg-bg-card rounded-lg border border-border shadow-lg py-1 min-w-[160px] z-50"
             style={{ top: contextMenu.y, left: contextMenu.x }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -463,7 +463,7 @@ function FunnelFlowInner({
                 }
                 setContextMenu(null);
               }}
-              className="w-full px-3 py-2 text-left text-sm text-status-failed hover:bg-red-50 flex items-center gap-2"
+              className="w-full px-3 py-2 text-left text-sm text-status-failed hover:bg-red-500/10 flex items-center gap-2"
             >
               <Trash2 className="w-3.5 h-3.5" /> Excluir
             </button>

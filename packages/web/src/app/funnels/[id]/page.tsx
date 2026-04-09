@@ -44,7 +44,7 @@ const STEP_TYPE_ICONS: Record<string, any> = {
 };
 
 const STATUS_COLORS: Record<string, { bg: string; text: string; label: string }> = {
-  TODO: { bg: 'bg-gray-100', text: 'text-gray-600', label: 'A Fazer' },
+  TODO: { bg: 'bg-bg-card-hover', text: 'text-gray-600', label: 'A Fazer' },
   IN_PROGRESS: { bg: 'bg-blue-100', text: 'text-blue-600', label: 'Em Andamento' },
   DONE: { bg: 'bg-green-100', text: 'text-green-600', label: 'Concluido' },
 };
@@ -267,7 +267,7 @@ export default function FunnelBuilderPage() {
                 onKeyDown={(e) => e.key === 'Enter' && handleUpdateTitle()}
                 autoFocus
               />
-              <button onClick={handleUpdateTitle} className="p-1.5 text-green-600 hover:bg-green-50 rounded-lg">
+              <button onClick={handleUpdateTitle} className="p-1.5 text-green-600 hover:bg-emerald-500/10 rounded-lg">
                 <Check className="w-4 h-4" />
               </button>
               <button onClick={() => { setEditingTitle(false); setTitleValue(funnel.title); }} className="p-1.5 text-text-muted hover:bg-bg-card-hover rounded-lg">
@@ -291,7 +291,7 @@ export default function FunnelBuilderPage() {
             onClick={() => setViewMode('cards')}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
               viewMode === 'cards'
-                ? 'bg-white text-primary shadow-sm'
+                ? 'bg-bg-card text-primary shadow-sm'
                 : 'text-text-muted hover:text-text-primary'
             }`}
           >
@@ -302,7 +302,7 @@ export default function FunnelBuilderPage() {
             onClick={() => setViewMode('flow')}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${
               viewMode === 'flow'
-                ? 'bg-white text-primary shadow-sm'
+                ? 'bg-bg-card text-primary shadow-sm'
                 : 'text-text-muted hover:text-text-primary'
             }`}
           >
@@ -313,7 +313,7 @@ export default function FunnelBuilderPage() {
 
         <div className="text-right">
           <div className="text-xs text-text-muted mb-1">{doneSteps}/{totalSteps} passos</div>
-          <div className="w-32 h-2 bg-gray-100 rounded-full overflow-hidden">
+          <div className="w-32 h-2 bg-bg-card-hover rounded-full overflow-hidden">
             <div
               className="h-full bg-gradient-to-r from-primary to-accent-pink rounded-full transition-all"
               style={{ width: `${progressPct}%` }}
@@ -358,15 +358,15 @@ export default function FunnelBuilderPage() {
                     </div>
                     <button
                       onClick={() => handleDeleteStage(stage.id)}
-                      className="p-1 rounded text-text-muted hover:text-status-failed hover:bg-red-50 transition-colors"
+                      className="p-1 rounded text-text-muted hover:text-status-failed hover:bg-red-500/10 transition-colors"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
 
                   {/* Progress */}
-                  <div className="px-3 py-1.5 bg-white border-x border-border">
-                    <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="px-3 py-1.5 bg-bg-card border-x border-border">
+                    <div className="w-full h-1.5 bg-bg-card-hover rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full transition-all"
                         style={{ width: `${stageProgress}%`, backgroundColor: stage.color }}
@@ -375,7 +375,7 @@ export default function FunnelBuilderPage() {
                   </div>
 
                   {/* Steps */}
-                  <div className="bg-white border-x border-b border-border rounded-b-xl p-2 space-y-2 min-h-[100px]">
+                  <div className="bg-bg-card border-x border-b border-border rounded-b-xl p-2 space-y-2 min-h-[100px]">
                     {stageSteps.map((step: any) => {
                       const StepIcon = STEP_TYPE_ICONS[step.type] || MoreHorizontal;
                       const status = STATUS_COLORS[step.status] || STATUS_COLORS.TODO;
@@ -484,7 +484,7 @@ export default function FunnelBuilderPage() {
                               </button>
                               <button
                                 onClick={() => handleDeleteStep(stage.id, step.id)}
-                                className="p-1 rounded text-text-muted hover:text-status-failed hover:bg-red-50 transition-colors"
+                                className="p-1 rounded text-text-muted hover:text-status-failed hover:bg-red-500/10 transition-colors"
                               >
                                 <Trash2 className="w-3 h-3" />
                               </button>

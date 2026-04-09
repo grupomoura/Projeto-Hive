@@ -114,7 +114,7 @@ function InviteContent() {
           </div>
         </div>
 
-        <div className="bg-white rounded-card p-8 shadow-lg border border-border">
+        <div className="bg-bg-card rounded-card p-8 shadow-lg border border-border">
           <div className="text-center mb-6">
             <h2 className="text-xl font-bold text-text-primary">Voce foi convidado!</h2>
             <p className="text-sm text-text-secondary mt-1">
@@ -160,7 +160,7 @@ function InviteContent() {
             </div>
 
             {error && (
-              <div className="px-3 py-2.5 rounded-input bg-red-50 border border-red-100">
+              <div className="px-3 py-2.5 rounded-input bg-red-500/10 border border-red-500/20">
                 <p className="text-status-failed text-sm">{error}</p>
               </div>
             )}

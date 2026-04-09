@@ -303,25 +303,25 @@ export default function NewPost() {
               <div className="flex items-center bg-bg-main rounded-lg p-0.5 flex-wrap">
                 <button
                   onClick={() => setGenMode('ai')}
-                  className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${genMode === 'ai' ? 'bg-white text-primary shadow-sm' : 'text-text-muted hover:text-text-primary'}`}
+                  className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${genMode === 'ai' ? 'bg-bg-card text-primary shadow-sm' : 'text-text-muted hover:text-text-primary'}`}
                 >
                   IA
                 </button>
                 <button
                   onClick={() => setGenMode('template')}
-                  className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${genMode === 'template' ? 'bg-white text-primary shadow-sm' : 'text-text-muted hover:text-text-primary'}`}
+                  className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${genMode === 'template' ? 'bg-bg-card text-primary shadow-sm' : 'text-text-muted hover:text-text-primary'}`}
                 >
                   Template
                 </button>
                 <button
                   onClick={() => setGenMode('misto')}
-                  className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${genMode === 'misto' ? 'bg-white text-primary shadow-sm' : 'text-text-muted hover:text-text-primary'}`}
+                  className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${genMode === 'misto' ? 'bg-bg-card text-primary shadow-sm' : 'text-text-muted hover:text-text-primary'}`}
                 >
                   Misto
                 </button>
                 <button
                   onClick={() => setGenMode('composed')}
-                  className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${genMode === 'composed' ? 'bg-white text-primary shadow-sm' : 'text-text-muted hover:text-text-primary'}`}
+                  className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${genMode === 'composed' ? 'bg-bg-card text-primary shadow-sm' : 'text-text-muted hover:text-text-primary'}`}
                 >
                   HTML + IA
                 </button>
@@ -365,7 +365,7 @@ export default function NewPost() {
                           className={`p-2.5 rounded-lg text-center transition-all border ${
                             selectedTemplate === t.id
                               ? 'border-primary bg-primary/5 text-primary'
-                              : 'border-border bg-white text-text-secondary hover:border-primary/30'
+                              : 'border-border bg-bg-card text-text-secondary hover:border-primary/30'
                           }`}
                         >
                           <div className="text-lg mb-0.5">{t.emoji}</div>
@@ -440,7 +440,7 @@ export default function NewPost() {
                       <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary">1</div>
                       <h3 className="text-xs font-bold text-text-primary uppercase tracking-wider">Capa (IA)</h3>
                       {images.length > 0 && (
-                        <span className="text-[10px] text-status-published bg-emerald-50 px-2 py-0.5 rounded-badge font-medium ml-auto">Gerada</span>
+                        <span className="text-[10px] text-status-published bg-emerald-500/10 px-2 py-0.5 rounded-badge font-medium ml-auto">Gerada</span>
                       )}
                     </div>
                     <textarea
@@ -503,7 +503,7 @@ export default function NewPost() {
                             className={`p-2 rounded-lg text-center transition-all border ${
                               selectedTemplate === t.id
                                 ? 'border-primary bg-primary/5 text-primary'
-                                : 'border-border bg-white text-text-secondary hover:border-primary/30'
+                                : 'border-border bg-bg-card text-text-secondary hover:border-primary/30'
                             }`}
                           >
                             <div className="text-base mb-0.5">{t.emoji}</div>
@@ -645,7 +645,7 @@ export default function NewPost() {
                   className={`py-3 px-3 rounded-btn text-sm border transition-all duration-200 ${
                     aspectRatio === ar.value
                       ? 'bg-primary/[0.08] border-primary text-primary shadow-sm'
-                      : 'bg-white border-border text-text-secondary hover:border-primary/50'
+                      : 'bg-bg-card border-border text-text-secondary hover:border-primary/50'
                   }`}
                 >
                   <span className="font-bold block">{ar.label}</span>
@@ -745,7 +745,7 @@ export default function NewPost() {
               <Save className="w-4 h-4" strokeWidth={1.5} />
               Rascunho
             </button>
-            <button onClick={() => handleSave('schedule')} disabled={loading || !scheduledAt} className="btn-ghost flex-1 justify-center text-status-scheduled border-status-scheduled/30 hover:bg-blue-50 hover:text-status-scheduled">
+            <button onClick={() => handleSave('schedule')} disabled={loading || !scheduledAt} className="btn-ghost flex-1 justify-center text-status-scheduled border-status-scheduled/30 hover:bg-blue-500/10 hover:text-status-scheduled">
               <Clock className="w-4 h-4" strokeWidth={1.5} />
               Agendar
             </button>
@@ -759,8 +759,8 @@ export default function NewPost() {
           {message && (
             <div className={`flex items-center gap-2 px-4 py-3 rounded-btn border animate-slide-up ${
               messageType === 'success'
-                ? 'bg-emerald-50 border-emerald-200 text-status-published'
-                : 'bg-red-50 border-red-200 text-status-failed'
+                ? 'bg-emerald-500/10 border-emerald-200 text-status-published'
+                : 'bg-red-500/10 border-red-200 text-status-failed'
             }`}>
               <p className="text-sm font-medium">{message}</p>
             </div>
@@ -771,7 +771,7 @@ export default function NewPost() {
         <div className="lg:sticky lg:top-8 lg:self-start">
           <div className="card p-5">
             <p className="text-xs font-semibold text-text-secondary mb-4 uppercase tracking-wider">Preview do Post</p>
-            <div className="bg-white rounded-2xl overflow-hidden border border-border">
+            <div className="bg-bg-card rounded-2xl overflow-hidden border border-border">
               {/* Instagram Header */}
               <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
                 <div className="w-9 h-9 rounded-full flex items-center justify-center bg-gradient-to-br from-primary to-accent-pink">

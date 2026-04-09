@@ -36,7 +36,7 @@ export default function ScriptView() {
     <div className="max-w-4xl mx-auto animate-fade-in">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
-        <Link href={`/tasks/${id}`} className="w-9 h-9 rounded-lg bg-white border border-border flex items-center justify-center hover:border-primary transition-colors">
+        <Link href={`/tasks/${id}`} className="w-9 h-9 rounded-lg bg-bg-card border border-border flex items-center justify-center hover:border-primary transition-colors">
           <ArrowLeft className="w-4 h-4 text-text-secondary" />
         </Link>
         <div className="flex-1 min-w-0">

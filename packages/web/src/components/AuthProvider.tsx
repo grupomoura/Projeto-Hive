@@ -142,7 +142,7 @@ function LoginScreen({
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-card p-8 shadow-lg border border-border">
+        <div className="bg-bg-card rounded-card p-8 shadow-lg border border-border">
           <div className="text-center mb-6">
             <h2 className="text-xl font-bold text-text-primary">
               {isRegister ? 'Criar conta' : 'Bem-vindo de volta'}
@@ -190,7 +190,7 @@ function LoginScreen({
             </div>
 
             {error && (
-              <div className="flex items-center gap-2 px-3 py-2.5 rounded-input bg-red-50 border border-red-100">
+              <div className="flex items-center gap-2 px-3 py-2.5 rounded-input bg-red-500/10 border border-red-500/20">
                 <p className="text-status-failed text-sm">{error}</p>
               </div>
             )}
@@ -210,7 +210,7 @@ function LoginScreen({
               <div className="w-full border-t border-border" />
             </div>
             <div className="relative flex justify-center">
-              <span className="bg-white px-3 text-xs text-text-muted">ou</span>
+              <span className="bg-bg-card px-3 text-xs text-text-muted">ou</span>
             </div>
           </div>
 

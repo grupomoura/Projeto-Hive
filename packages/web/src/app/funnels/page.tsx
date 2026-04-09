@@ -74,7 +74,7 @@ export default function FunnelsPage() {
                   </div>
                   <button
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(funnel.id, funnel.title); }}
-                    className="p-1.5 rounded-lg text-text-muted hover:text-status-failed hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all"
+                    className="p-1.5 rounded-lg text-text-muted hover:text-status-failed hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-all"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>

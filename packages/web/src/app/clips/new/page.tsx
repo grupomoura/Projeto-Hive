@@ -80,14 +80,14 @@ export default function NewClipPage() {
         <div className="flex items-center bg-bg-main rounded-lg p-0.5">
           <button
             onClick={() => setMode('upload')}
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-xs font-semibold transition-all ${mode === 'upload' ? 'bg-white text-primary shadow-sm' : 'text-text-muted hover:text-text-primary'}`}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-xs font-semibold transition-all ${mode === 'upload' ? 'bg-bg-card text-primary shadow-sm' : 'text-text-muted hover:text-text-primary'}`}
           >
             <Upload className="w-4 h-4" />
             Upload de Video
           </button>
           <button
             onClick={() => setMode('url')}
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-xs font-semibold transition-all ${mode === 'url' ? 'bg-white text-primary shadow-sm' : 'text-text-muted hover:text-text-primary'}`}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-md text-xs font-semibold transition-all ${mode === 'url' ? 'bg-bg-card text-primary shadow-sm' : 'text-text-muted hover:text-text-primary'}`}
           >
             <Youtube className="w-4 h-4" />
             URL do YouTube
@@ -169,7 +169,7 @@ export default function NewClipPage() {
         )}
 
         {error && (
-          <div className="p-3 rounded-lg bg-red-50 text-sm text-status-failed">
+          <div className="p-3 rounded-lg bg-red-500/10 text-sm text-status-failed">
             {error}
           </div>
         )}

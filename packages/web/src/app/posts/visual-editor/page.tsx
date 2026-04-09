@@ -480,7 +480,7 @@ export default function VisualEditorPage() {
 
   // ── Render ──
   return (
-    <div className="max-w-[1800px] mx-auto animate-fade-in">
+    <div className="max-w-[1800px] mx-auto animate-fade-in -mx-4">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
@@ -497,7 +497,7 @@ export default function VisualEditorPage() {
           <div className="flex items-center bg-bg-main rounded-lg p-0.5">
             {(['1:1', '4:5', '9:16'] as AspectRatio[]).map((ar) => (
               <button key={ar} onClick={() => setAspectRatio(ar)}
-                className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${aspectRatio === ar ? 'bg-white text-primary shadow-sm' : 'text-text-muted'}`}
+                className={`px-3 py-1.5 rounded-md text-xs font-semibold transition-all ${aspectRatio === ar ? 'bg-bg-card text-primary shadow-sm' : 'text-text-muted'}`}
               >{ar}</button>
             ))}
           </div>
@@ -514,9 +514,9 @@ export default function VisualEditorPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-12 gap-4">
+      <div className="grid grid-cols-12 gap-5">
         {/* ── Left: Canvas ── */}
-        <div className="col-span-9 space-y-4">
+        <div className="col-span-8 space-y-4">
           {/* Slide thumbnails */}
           <div className="card p-4 overflow-x-auto">
             <div className="flex items-start gap-3 min-w-min">
@@ -573,14 +573,14 @@ export default function VisualEditorPage() {
           </div>
 
           {message && (
-            <div className={`px-4 py-3 rounded-btn border text-sm ${messageType === 'success' ? 'bg-emerald-50 border-emerald-200 text-status-published' : 'bg-red-50 border-red-200 text-status-failed'}`}>
+            <div className={`px-4 py-3 rounded-btn border text-sm ${messageType === 'success' ? 'bg-emerald-500/10 border-emerald-500/20 text-status-published' : 'bg-red-500/10 border-red-500/20 text-status-failed'}`}>
               {message}
             </div>
           )}
         </div>
 
         {/* ── Right: Sidebar ── */}
-        <div className="col-span-3 space-y-3 sticky top-4 self-start max-h-[90vh] overflow-y-auto">
+        <div className="col-span-4 space-y-3 sticky top-4 self-start max-h-[90vh] overflow-y-auto pr-1">
           {/* Brand */}
           <div className="card p-4">
             <h3 className="text-[11px] font-bold text-text-muted uppercase tracking-wider mb-2 flex items-center gap-1.5">
@@ -601,7 +601,7 @@ export default function VisualEditorPage() {
               {TEMPLATES.map((t) => (
                 <button key={t.id} onClick={() => changeTemplate(t.id)}
                   className={`p-2 rounded-lg border text-left transition-all ${
-                    active.template === t.id ? 'border-primary bg-primary/[0.08] text-primary' : 'border-border bg-white text-text-secondary hover:border-primary/30'
+                    active.template === t.id ? 'border-primary bg-primary/[0.08] text-primary' : 'border-border bg-bg-card text-text-secondary hover:border-primary/30'
                   }`}>
                   <div className="text-base mb-0.5">{t.icon}</div>
                   <div className="text-[10px] font-bold leading-tight">{t.name}</div>
@@ -689,7 +689,7 @@ export default function VisualEditorPage() {
             <div className="grid grid-cols-3 gap-1">
               {POSITIONS.map((p) => (
                 <button key={p.id} onClick={() => updateActive({ position: p.id })}
-                  className={`text-[8px] py-1.5 rounded border ${active.position === p.id ? 'bg-primary text-white border-primary' : 'bg-white border-border text-text-secondary'}`}>
+                  className={`text-[8px] py-1.5 rounded border ${active.position === p.id ? 'bg-primary text-white border-primary' : 'bg-bg-card border-border text-text-secondary'}`}>
                   {p.label}
                 </button>
               ))}
@@ -699,7 +699,7 @@ export default function VisualEditorPage() {
             <div className="grid grid-cols-2 gap-1">
               {FONTS.map((f) => (
                 <button key={f.id} onClick={() => updateActive({ fontFamily: f.id })} style={{ fontFamily: `'${f.id}'` }}
-                  className={`text-[10px] py-1 rounded border font-bold ${active.fontFamily === f.id ? 'bg-primary text-white border-primary' : 'bg-white border-border text-text-secondary'}`}>
+                  className={`text-[10px] py-1 rounded border font-bold ${active.fontFamily === f.id ? 'bg-primary text-white border-primary' : 'bg-bg-card border-border text-text-secondary'}`}>
                   {f.label}
                 </button>
               ))}
@@ -709,7 +709,7 @@ export default function VisualEditorPage() {
             <div className="grid grid-cols-5 gap-1">
               {[300, 400, 600, 700, 900].map((w) => (
                 <button key={w} onClick={() => updateActive({ fontWeight: w })}
-                  className={`text-[10px] py-1 rounded border ${active.fontWeight === w ? 'bg-primary text-white border-primary' : 'bg-white border-border text-text-secondary'}`}>
+                  className={`text-[10px] py-1 rounded border ${active.fontWeight === w ? 'bg-primary text-white border-primary' : 'bg-bg-card border-border text-text-secondary'}`}>
                   {w}
                 </button>
               ))}
@@ -744,23 +744,23 @@ export default function VisualEditorPage() {
                 </div>
                 <div className="grid grid-cols-5 gap-1">
                   <button onClick={() => updateActive({ logoPosition: '' })}
-                    className={`text-[9px] py-1.5 rounded border ${!active.logoPosition ? 'bg-primary text-white border-primary' : 'bg-white border-border text-text-secondary'}`}>
+                    className={`text-[9px] py-1.5 rounded border ${!active.logoPosition ? 'bg-primary text-white border-primary' : 'bg-bg-card border-border text-text-secondary'}`}>
                     Nao
                   </button>
                   <button onClick={() => updateActive({ logoPosition: 'top-left' })}
-                    className={`text-[9px] py-1.5 rounded border ${active.logoPosition === 'top-left' ? 'bg-primary text-white border-primary' : 'bg-white border-border text-text-secondary'}`}>
+                    className={`text-[9px] py-1.5 rounded border ${active.logoPosition === 'top-left' ? 'bg-primary text-white border-primary' : 'bg-bg-card border-border text-text-secondary'}`}>
                     S.E
                   </button>
                   <button onClick={() => updateActive({ logoPosition: 'top-right' })}
-                    className={`text-[9px] py-1.5 rounded border ${active.logoPosition === 'top-right' ? 'bg-primary text-white border-primary' : 'bg-white border-border text-text-secondary'}`}>
+                    className={`text-[9px] py-1.5 rounded border ${active.logoPosition === 'top-right' ? 'bg-primary text-white border-primary' : 'bg-bg-card border-border text-text-secondary'}`}>
                     S.D
                   </button>
                   <button onClick={() => updateActive({ logoPosition: 'bottom-left' })}
-                    className={`text-[9px] py-1.5 rounded border ${active.logoPosition === 'bottom-left' ? 'bg-primary text-white border-primary' : 'bg-white border-border text-text-secondary'}`}>
+                    className={`text-[9px] py-1.5 rounded border ${active.logoPosition === 'bottom-left' ? 'bg-primary text-white border-primary' : 'bg-bg-card border-border text-text-secondary'}`}>
                     I.E
                   </button>
                   <button onClick={() => updateActive({ logoPosition: 'bottom-right' })}
-                    className={`text-[9px] py-1.5 rounded border ${active.logoPosition === 'bottom-right' ? 'bg-primary text-white border-primary' : 'bg-white border-border text-text-secondary'}`}>
+                    className={`text-[9px] py-1.5 rounded border ${active.logoPosition === 'bottom-right' ? 'bg-primary text-white border-primary' : 'bg-bg-card border-border text-text-secondary'}`}>
                     I.D
                   </button>
                 </div>

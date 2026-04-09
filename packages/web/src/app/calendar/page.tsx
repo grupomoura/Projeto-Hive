@@ -121,13 +121,13 @@ export default function CalendarPage() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => { setCurrentDate(new Date(year, month - 1)); setSelectedDay(null); }}
-                  className="w-9 h-9 rounded-lg border border-border flex items-center justify-center text-text-secondary hover:text-text-primary hover:bg-bg-card-hover transition-colors shadow-sm bg-white"
+                  className="w-9 h-9 rounded-lg border border-border flex items-center justify-center text-text-secondary hover:text-text-primary hover:bg-bg-card-hover transition-colors shadow-sm bg-bg-card"
                 >
                   <ChevronLeft className="w-5 h-5" strokeWidth={2} />
                 </button>
                 <button
                   onClick={() => { setCurrentDate(new Date(year, month + 1)); setSelectedDay(null); }}
-                  className="w-9 h-9 rounded-lg border border-border flex items-center justify-center text-text-secondary hover:text-text-primary hover:bg-bg-card-hover transition-colors shadow-sm bg-white"
+                  className="w-9 h-9 rounded-lg border border-border flex items-center justify-center text-text-secondary hover:text-text-primary hover:bg-bg-card-hover transition-colors shadow-sm bg-bg-card"
                 >
                   <ChevronRight className="w-5 h-5" strokeWidth={2} />
                 </button>
@@ -138,7 +138,7 @@ export default function CalendarPage() {
               <div className="flex items-center gap-3">
                 <button
                   onClick={goToToday}
-                  className="text-[13px] font-semibold text-text-primary border border-border px-4 py-2 rounded-lg hover:bg-bg-card-hover transition-colors shadow-sm bg-white"
+                  className="text-[13px] font-semibold text-text-primary border border-border px-4 py-2 rounded-lg hover:bg-bg-card-hover transition-colors shadow-sm bg-bg-card"
                 >
                   Hoje
                 </button>

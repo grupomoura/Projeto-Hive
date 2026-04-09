@@ -60,7 +60,7 @@ export default function NewProject() {
     <div className="max-w-6xl mx-auto animate-fade-in">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
-        <Link href="/projects" className="w-9 h-9 rounded-lg bg-white border border-border flex items-center justify-center hover:border-primary transition-colors">
+        <Link href="/projects" className="w-9 h-9 rounded-lg bg-bg-card border border-border flex items-center justify-center hover:border-primary transition-colors">
           <ArrowLeft className="w-4 h-4 text-text-secondary" />
         </Link>
         <div>

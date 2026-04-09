@@ -15,10 +15,10 @@ const PLATFORMS = [
 ];
 
 const PRIORITIES = [
-  { value: 'LOW', label: 'Baixa', color: 'bg-emerald-50 text-status-published border-emerald-200' },
-  { value: 'MEDIUM', label: 'Media', color: 'bg-blue-50 text-status-scheduled border-blue-200' },
-  { value: 'HIGH', label: 'Alta', color: 'bg-amber-50 text-amber-600 border-amber-200' },
-  { value: 'URGENT', label: 'Urgente', color: 'bg-red-50 text-status-failed border-red-200' },
+  { value: 'LOW', label: 'Baixa', color: 'bg-emerald-500/10 text-status-published border-emerald-200' },
+  { value: 'MEDIUM', label: 'Media', color: 'bg-blue-500/10 text-status-scheduled border-blue-200' },
+  { value: 'HIGH', label: 'Alta', color: 'bg-amber-500/10 text-amber-600 border-amber-200' },
+  { value: 'URGENT', label: 'Urgente', color: 'bg-red-500/10 text-status-failed border-red-200' },
 ];
 
 function FileUploadField({ label, fileUrl, fileName, uploading, onUpload, onRemove }: {
@@ -127,7 +127,7 @@ export default function NewTask() {
     <div className="max-w-6xl mx-auto animate-fade-in">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
-        <Link href="/tasks" className="w-9 h-9 rounded-lg bg-white border border-border flex items-center justify-center hover:border-primary transition-colors">
+        <Link href="/tasks" className="w-9 h-9 rounded-lg bg-bg-card border border-border flex items-center justify-center hover:border-primary transition-colors">
           <ArrowLeft className="w-4 h-4 text-text-secondary" />
         </Link>
         <div>
@@ -239,7 +239,7 @@ export default function NewTask() {
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
                     form.platform === p.value
                       ? 'bg-primary text-white border-primary'
-                      : 'bg-white text-text-secondary border-border hover:border-primary'
+                      : 'bg-bg-card text-text-secondary border-border hover:border-primary'
                   }`}
                 >
                   {p.label}
@@ -253,7 +253,7 @@ export default function NewTask() {
                   key={p.value}
                   onClick={() => set('priority', p.value)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
-                    form.priority === p.value ? p.color + ' border-current' : 'bg-white text-text-secondary border-border hover:border-primary'
+                    form.priority === p.value ? p.color + ' border-current' : 'bg-bg-card text-text-secondary border-border hover:border-primary'
                   }`}
                 >
                   {p.label}

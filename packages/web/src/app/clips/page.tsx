@@ -6,7 +6,7 @@ import { api } from '../../lib/api';
 import { Plus, Loader2, Film, Trash2, ExternalLink, Clock } from 'lucide-react';
 
 const STATUS_BADGES: Record<string, { bg: string; text: string; label: string }> = {
-  PENDING: { bg: 'bg-gray-100', text: 'text-gray-600', label: 'Pendente' },
+  PENDING: { bg: 'bg-bg-card-hover', text: 'text-gray-600', label: 'Pendente' },
   ANALYZING: { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Analisando...' },
   ANALYZED: { bg: 'bg-blue-100', text: 'text-blue-600', label: 'Analisado' },
   CLIPPING: { bg: 'bg-orange-100', text: 'text-orange-600', label: 'Cortando...' },
@@ -118,7 +118,7 @@ export default function ClipsPage() {
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(clip.id); }}
-                    className="p-2 rounded-lg text-text-muted hover:text-status-failed hover:bg-red-50 transition-colors"
+                    className="p-2 rounded-lg text-text-muted hover:text-status-failed hover:bg-red-500/10 transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>

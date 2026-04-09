@@ -177,7 +177,7 @@ export default function NewFunnelPage() {
               </div>
 
               {error && (
-                <div className="px-3 py-2.5 rounded-input bg-red-50 border border-red-100">
+                <div className="px-3 py-2.5 rounded-input bg-red-500/10 border border-red-500/20">
                   <p className="text-status-failed text-sm">{error}</p>
                 </div>
               )}
@@ -213,7 +213,7 @@ export default function NewFunnelPage() {
                       className={`w-full text-left p-4 transition-all ${
                         selected
                           ? 'border-2 border-primary bg-primary/5 shadow-sm rounded-xl ' + (template.stages.length > 0 ? 'rounded-b-none' : '')
-                          : 'border-2 border-border bg-white hover:border-primary/30 rounded-xl'
+                          : 'border-2 border-border bg-bg-card hover:border-primary/30 rounded-xl'
                       }`}
                     >
                       <div className="flex items-center gap-3">
@@ -253,7 +253,7 @@ export default function NewFunnelPage() {
 
                     {/* Expanded: show stages and steps */}
                     {selected && template.stages.length > 0 && (
-                      <div className="border-2 border-t-0 border-primary bg-white rounded-b-xl p-4 space-y-3">
+                      <div className="border-2 border-t-0 border-primary bg-bg-card rounded-b-xl p-4 space-y-3">
                         {template.stages.map((stage, stageIdx) => (
                           <div key={stageIdx}>
                             <div className="flex items-center gap-2 mb-1.5">

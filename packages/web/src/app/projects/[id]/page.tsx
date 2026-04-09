@@ -8,9 +8,9 @@ import { ArrowLeft, Plus, Trash2, Save, ExternalLink, CheckSquare, Square, Loade
 import { FormattedText } from '../../../components/FormattedText';
 
 const STATUSES = [
-  { value: 'PLANNING', label: 'Planejamento', color: 'bg-amber-50 text-amber-600 border-amber-200' },
-  { value: 'IN_PROGRESS', label: 'Em Andamento', color: 'bg-blue-50 text-status-scheduled border-blue-200' },
-  { value: 'COMPLETED', label: 'Concluido', color: 'bg-emerald-50 text-status-published border-emerald-200' },
+  { value: 'PLANNING', label: 'Planejamento', color: 'bg-amber-500/10 text-amber-600 border-amber-200' },
+  { value: 'IN_PROGRESS', label: 'Em Andamento', color: 'bg-blue-500/10 text-status-scheduled border-blue-200' },
+  { value: 'COMPLETED', label: 'Concluido', color: 'bg-emerald-500/10 text-status-published border-emerald-200' },
   { value: 'ARCHIVED', label: 'Arquivado', color: 'bg-gray-50 text-text-muted border-gray-200' },
 ];
 
@@ -181,7 +181,7 @@ export default function ProjectDetail() {
       />
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
-        <Link href="/projects" className="w-9 h-9 rounded-lg bg-white border border-border flex items-center justify-center hover:border-primary transition-colors">
+        <Link href="/projects" className="w-9 h-9 rounded-lg bg-bg-card border border-border flex items-center justify-center hover:border-primary transition-colors">
           <ArrowLeft className="w-4 h-4 text-text-secondary" />
         </Link>
         <div className="flex-1 min-w-0">
@@ -204,7 +204,7 @@ export default function ProjectDetail() {
                   className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all border text-center ${
                     project.status === s.value
                       ? s.color + ' border-current'
-                      : 'bg-white text-text-secondary border-border hover:border-primary'
+                      : 'bg-bg-card text-text-secondary border-border hover:border-primary'
                   }`}
                 >
                   {s.label}
@@ -232,7 +232,7 @@ export default function ProjectDetail() {
           {project.tasks && project.tasks.length > 0 && (
             <div className="card p-6">
               <h2 className="text-xs font-semibold text-text-secondary mb-3 uppercase tracking-wider">Tarefas ({project.tasks.length})</h2>
-              <div className="divide-y divide-[#F0EFEC]">
+              <div className="divide-y divide-border">
                 {project.tasks.map((task: any) => (
                   <Link key={task.id} href={`/tasks/${task.id}`} className="flex items-center gap-3 py-2.5 hover:bg-bg-card-hover rounded-lg transition-colors px-2 -mx-2">
                     <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -265,7 +265,7 @@ export default function ProjectDetail() {
             ) : (
               <div className="space-y-2 mb-4">
                 {project.modules.map((mod: any, idx: number) => (
-                  <div key={mod.id} className={`border rounded-xl p-4 transition-colors ${mod.isRecorded ? 'bg-emerald-50/50 border-emerald-200' : 'border-border bg-white'}`}>
+                  <div key={mod.id} className={`border rounded-xl p-4 transition-colors ${mod.isRecorded ? 'bg-emerald-500/10 border-emerald-200' : 'border-border bg-bg-card'}`}>
                     <div className="flex items-start gap-3">
                       <button
                         onClick={() => handleToggleRecorded(mod.id, mod.isRecorded)}
@@ -385,7 +385,7 @@ export default function ProjectDetail() {
                                     <FileText className="w-3 h-3" />
                                     {getFileName(mod.fileUrl)}
                                   </a>
-                                  <button onClick={() => handleRemoveFile(mod.id)} className="p-0.5 rounded hover:bg-red-50 transition-colors">
+                                  <button onClick={() => handleRemoveFile(mod.id)} className="p-0.5 rounded hover:bg-red-500/10 transition-colors">
                                     <X className="w-3 h-3 text-text-muted hover:text-status-failed" />
                                   </button>
                                 </div>

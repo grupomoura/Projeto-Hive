@@ -29,7 +29,7 @@ const SERVICES: ServiceConfig[] = [
     name: 'Facebook App (para token Instagram)',
     description: 'Necessario para trocar token short-lived por long-lived (60 dias)',
     icon: Camera,
-    iconBg: 'bg-blue-50',
+    iconBg: 'bg-blue-500/10',
     iconColor: 'text-blue-600',
     fields: [
       { key: 'FACEBOOK_APP_ID', label: 'App ID', placeholder: '953530xxxxxxx (topo do Facebook Developer)' },
@@ -40,7 +40,7 @@ const SERVICES: ServiceConfig[] = [
     name: 'Geracao de Imagens (Gemini)',
     description: 'Geracao de imagens e legendas com IA via Google Gemini',
     icon: Zap,
-    iconBg: 'bg-amber-50',
+    iconBg: 'bg-amber-500/10',
     iconColor: 'text-amber-600',
     fields: [
       { key: 'NANO_BANANA_API_KEY', label: 'Google Gemini API Key', placeholder: 'AIzaSyxxxxxxxxx...' },
@@ -50,7 +50,7 @@ const SERVICES: ServiceConfig[] = [
     name: 'Telegram Bot',
     description: 'Criacao e gerenciamento de posts via Telegram',
     icon: Send,
-    iconBg: 'bg-blue-50',
+    iconBg: 'bg-blue-500/10',
     iconColor: 'text-blue-500',
     fields: [
       { key: 'TELEGRAM_BOT_TOKEN', label: 'Bot Token', placeholder: '123456:ABCxxxxxxx...' },
@@ -203,7 +203,7 @@ export default function SettingsPage() {
         <p className="text-[11px] font-semibold text-text-muted uppercase tracking-wider mb-3">Conexao MCP</p>
         <div className="card p-5">
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-50 to-yellow-50 flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500/10 to-yellow-500/10 flex items-center justify-center flex-shrink-0">
               <Hexagon className="w-6 h-6 text-amber-600" strokeWidth={1.5} />
             </div>
             <div className="flex-1 min-w-0">
@@ -332,7 +332,7 @@ export default function SettingsPage() {
         <p className="text-[11px] font-semibold text-text-muted uppercase tracking-wider mb-3">Contas do Instagram</p>
         <div className="card p-5 mb-6">
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-pink-50 to-purple-50 flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-pink-500/10 to-purple-500/10 flex items-center justify-center flex-shrink-0">
               <Camera className="w-6 h-6 text-pink-500" strokeWidth={1.5} />
             </div>
             <div className="flex-1">
@@ -421,7 +421,7 @@ export default function SettingsPage() {
                     )}
                     <button
                       onClick={() => handleDeleteIg(acc.id)}
-                      className="p-1.5 rounded text-text-muted hover:text-status-failed hover:bg-red-50 transition-colors"
+                      className="p-1.5 rounded text-text-muted hover:text-status-failed hover:bg-red-500/10 transition-colors"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -518,7 +518,7 @@ export default function SettingsPage() {
         <p className="text-[11px] font-semibold text-text-muted uppercase tracking-wider mb-3">YouTube Clips</p>
         <div className="card p-5">
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-red-50 flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 rounded-2xl bg-red-500/10 flex items-center justify-center flex-shrink-0">
               <svg className="w-6 h-6 text-red-500" viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 00.5 6.2 31.5 31.5 0 000 12a31.5 31.5 0 00.5 5.8 3 3 0 002.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 002.1-2.1A31.5 31.5 0 0024 12a31.5 31.5 0 00-.5-5.8zM9.5 15.5v-7l6.3 3.5-6.3 3.5z"/></svg>
             </div>
             <div className="flex-1">
@@ -574,7 +574,7 @@ export default function SettingsPage() {
         <div className="card p-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-red-50 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-2xl bg-red-500/10 flex items-center justify-center">
                 <LogOut className="w-5 h-5 text-status-failed" strokeWidth={1.5} />
               </div>
               <div>
@@ -584,7 +584,7 @@ export default function SettingsPage() {
             </div>
             <button
               onClick={logout}
-              className="px-4 py-2 rounded-btn text-xs font-semibold bg-red-50 text-status-failed hover:bg-red-100 border border-red-100 transition-all"
+              className="px-4 py-2 rounded-btn text-xs font-semibold bg-red-500/10 text-status-failed hover:bg-red-500/10 border border-red-500/20 transition-all"
             >
               Sair
             </button>
