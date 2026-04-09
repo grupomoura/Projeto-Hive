@@ -473,11 +473,19 @@ export default function PostsList() {
       {/* Full Image / Video / Carousel Modal */}
       {selectedPost && (() => {
         const isVideo = selectedPost.mediaType === 'VIDEO';
+        const editorSlides: string[] = (selectedPost.editorState?.slides || [])
+          .map((s: any) => s.renderedUrl || s.backgroundUrl)
+          .filter(Boolean);
+        const dbImages: string[] = selectedPost.images?.length > 0
+          ? selectedPost.images.map((img: any) => img.imageUrl)
+          : [];
         const allImages = isVideo
           ? []
-          : selectedPost.isCarousel && selectedPost.images?.length > 0
-            ? selectedPost.images.map((img: any) => img.imageUrl)
-            : [selectedPost.imageUrl].filter(Boolean);
+          : dbImages.length > 0
+            ? dbImages
+            : editorSlides.length > 0
+              ? editorSlides
+              : [selectedPost.imageUrl].filter(Boolean);
         const isMulti = allImages.length > 1;
         return (
           <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 modal-backdrop" onClick={() => setSelectedPost(null)}>
