@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { api } from '../../lib/api';
 import { Plus, FolderKanban, Trash2 } from 'lucide-react';
+import { useConfirm } from '@/components/ConfirmModal';
 
 const STATUS_BADGE: Record<string, string> = {
   PLANNING: 'badge-planning',
@@ -20,6 +21,7 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 export default function ProjectsList() {
+  const confirm = useConfirm();
   const [projects, setProjects] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [filter, setFilter] = useState('');
@@ -37,7 +39,7 @@ export default function ProjectsList() {
   useEffect(() => { loadProjects(); }, [filter]);
 
   async function handleDelete(id: string) {
-    if (!confirm('Deletar este projeto e todos os modulos?')) return;
+    if (!await confirm({ message: 'Deletar este projeto e todos os modulos?' })) return;
     try {
       await api.deleteProject(id);
       setProjects((prev) => prev.filter((p) => p.id !== id));

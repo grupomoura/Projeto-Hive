@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { api } from '../../../lib/api';
 import { ArrowLeft, Plus, Trash2, Save, ExternalLink, CheckSquare, Square, Loader2, FolderKanban, ChevronDown, ChevronUp, Pencil, X, Upload, FileText } from 'lucide-react';
 import { FormattedText } from '../../../components/FormattedText';
+import { useConfirm } from '@/components/ConfirmModal';
 
 const STATUSES = [
   { value: 'PLANNING', label: 'Planejamento', color: 'bg-amber-500/10 text-amber-600 border-amber-200' },
@@ -15,6 +16,7 @@ const STATUSES = [
 ];
 
 export default function ProjectDetail() {
+  const confirm = useConfirm();
   const router = useRouter();
   const params = useParams();
   const id = params.id as string;
@@ -142,7 +144,7 @@ export default function ProjectDetail() {
   }
 
   async function handleDeleteModule(moduleId: string) {
-    if (!confirm('Remover este modulo?')) return;
+    if (!await confirm({ message: 'Remover este modulo?' })) return;
     try {
       await api.deleteModule(id, moduleId);
       setProject((p: any) => ({ ...p, modules: p.modules.filter((m: any) => m.id !== moduleId) }));

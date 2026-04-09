@@ -7,6 +7,7 @@ import {
   Camera, Zap, Send, Monitor, LogOut, CheckCircle, XCircle, Plus, Trash2,
   Loader2, Eye, EyeOff, Save, Copy, Check, ExternalLink, Hexagon,
 } from 'lucide-react';
+import { useConfirm } from '@/components/ConfirmModal';
 
 interface SettingField {
   key: string;
@@ -60,6 +61,7 @@ const SERVICES: ServiceConfig[] = [
 ];
 
 export default function SettingsPage() {
+  const confirm = useConfirm();
   const { logout } = useAuth();
   const [settings, setSettings] = useState<Record<string, { value: string; hasValue: boolean }>>({});
   const [editValues, setEditValues] = useState<Record<string, string>>({});
@@ -109,7 +111,7 @@ export default function SettingsPage() {
   }
 
   async function handleDeleteIg(id: string) {
-    if (!confirm('Remover esta conta do Instagram?')) return;
+    if (!await confirm({ message: 'Remover esta conta do Instagram?' })) return;
     try {
       await api.deleteInstagramAccount(id);
       await loadIgAccounts();

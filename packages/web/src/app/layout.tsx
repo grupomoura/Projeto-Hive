@@ -2,6 +2,7 @@ import './globals.css';
 import { LayoutContent } from '../components/LayoutContent';
 import { AuthProvider } from '../components/AuthProvider';
 import { ThemeProvider } from '../components/ThemeProvider';
+import { ConfirmProvider } from '../components/ConfirmModal';
 
 export const metadata = {
   title: 'OpenHive AI - Content Platform',
@@ -20,9 +21,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="bg-bg-main text-text-primary min-h-screen">
         <ThemeProvider>
-          <AuthProvider>
-            <LayoutContent>{children}</LayoutContent>
-          </AuthProvider>
+          <ConfirmProvider>
+            <AuthProvider>
+              <LayoutContent>{children}</LayoutContent>
+            </AuthProvider>
+          </ConfirmProvider>
         </ThemeProvider>
       </body>
     </html>

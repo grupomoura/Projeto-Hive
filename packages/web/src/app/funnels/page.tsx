@@ -4,8 +4,10 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { api } from '../../lib/api';
 import { GitBranch, Plus, Loader2, Trash2, ArrowRight } from 'lucide-react';
+import { useConfirm } from '@/components/ConfirmModal';
 
 export default function FunnelsPage() {
+  const confirm = useConfirm();
   const [funnels, setFunnels] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -17,7 +19,7 @@ export default function FunnelsPage() {
   }, []);
 
   async function handleDelete(id: string, title: string) {
-    if (!confirm(`Excluir o funil "${title}"?`)) return;
+    if (!await confirm({ message: `Excluir o funil "${title}"?` })) return;
     try {
       await api.deleteFunnel(id);
       setFunnels((prev) => prev.filter((f) => f.id !== id));

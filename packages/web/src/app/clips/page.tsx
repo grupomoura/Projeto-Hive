@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { api } from '../../lib/api';
 import { Plus, Loader2, Film, Trash2, ExternalLink, Clock } from 'lucide-react';
+import { useConfirm } from '@/components/ConfirmModal';
 
 const STATUS_BADGES: Record<string, { bg: string; text: string; label: string }> = {
   PENDING: { bg: 'bg-bg-card-hover', text: 'text-gray-600', label: 'Pendente' },
@@ -15,6 +16,7 @@ const STATUS_BADGES: Record<string, { bg: string; text: string; label: string }>
 };
 
 export default function ClipsPage() {
+  const confirm = useConfirm();
   const [clips, setClips] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -31,7 +33,7 @@ export default function ClipsPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Excluir este clip?')) return;
+    if (!await confirm({ message: 'Excluir este clip?' })) return;
     try {
       await api.deleteVideoClip(id);
       setClips((c) => c.filter((v) => v.id !== id));

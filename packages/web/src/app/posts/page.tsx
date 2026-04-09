@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { api } from '../../lib/api';
 import { Plus, Trash2, Send, Calendar, X, Loader2, FileText, Image as ImageIcon, Layers, ChevronLeft, ChevronRight, Pencil, Video as VideoIcon, Film, Wand2 } from 'lucide-react';
+import { useConfirm } from '@/components/ConfirmModal';
 
 const STATUS_BADGE: Record<string, string> = {
   DRAFT: 'badge-draft',
@@ -22,6 +23,7 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 export default function PostsList() {
+  const confirm = useConfirm();
   const [posts, setPosts] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [filter, setFilter] = useState('');
@@ -57,7 +59,7 @@ export default function PostsList() {
   }, [posts]);
 
   async function handleDelete(id: string) {
-    if (!confirm('Deletar este post?')) return;
+    if (!await confirm({ message: 'Deletar este post?' })) return;
     try {
       await api.deletePost(id);
       setPosts((prev) => prev.filter((p) => p.id !== id));
@@ -66,7 +68,7 @@ export default function PostsList() {
   }
 
   async function handlePublish(id: string) {
-    if (!confirm('Publicar agora no Instagram?')) return;
+    if (!await confirm({ message: 'Publicar agora no Instagram?', danger: false })) return;
     setActionLoading(id);
     try {
       await api.publishPost(id);

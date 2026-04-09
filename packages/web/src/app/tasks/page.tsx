@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { api } from '../../lib/api';
 import { Plus, Trash2, CheckSquare, Clock, Megaphone, Edit3, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useConfirm } from '@/components/ConfirmModal';
 
 const STATUS_BADGE: Record<string, string> = {
   PENDING: 'badge-pending',
@@ -42,6 +43,7 @@ const PLATFORM_LABEL: Record<string, string> = {
 };
 
 export default function TasksList() {
+  const confirm = useConfirm();
   const [tasks, setTasks] = useState<any[]>([]);
   const [total, setTotal] = useState(0);
   const [filter, setFilter] = useState('');
@@ -60,7 +62,7 @@ export default function TasksList() {
   useEffect(() => { loadTasks(); }, [filter, page]);
 
   async function handleDelete(id: string) {
-    if (!confirm('Deletar esta tarefa?')) return;
+    if (!await confirm({ message: 'Deletar esta tarefa?' })) return;
     try {
       await api.deleteTask(id);
       setTasks((prev) => prev.filter((t) => t.id !== id));

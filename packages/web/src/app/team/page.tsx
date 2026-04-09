@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { api } from '../../lib/api';
 import { Users, Mail, Shield, Trash2, Copy, Check, Plus, Loader2, Crown, UserCog, Eye, Pencil, ChevronDown } from 'lucide-react';
 import { useAuth } from '../../components/AuthProvider';
+import { useConfirm } from '@/components/ConfirmModal';
 
 const ROLE_LABELS: Record<string, string> = {
   OWNER: 'Proprietario',
@@ -38,6 +39,7 @@ const ALL_PAGES = [
 const PAGE_LABELS: Record<string, string> = Object.fromEntries(ALL_PAGES.map((p) => [p.slug, p.label]));
 
 export default function TeamPage() {
+  const confirm = useConfirm();
   const { user } = useAuth();
   const [members, setMembers] = useState<any[]>([]);
   const [invitations, setInvitations] = useState<any[]>([]);
@@ -103,7 +105,7 @@ export default function TeamPage() {
   }
 
   async function handleRemoveMember(id: string, name: string) {
-    if (!confirm(`Remover ${name} da equipe?`)) return;
+    if (!await confirm({ message: `Remover ${name} da equipe?` })) return;
     try {
       await api.removeMember(id);
       await loadData();

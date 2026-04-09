@@ -123,10 +123,11 @@ app.get('/api/instagram/profile', async (_req, res) => {
       if (!profile.error) {
         const mediaRes = await fetch(`${fbBase}/${igUserId}/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count&limit=12&access_token=${token}`);
         const media = await mediaRes.json() as any;
-        // Fetch thumbnail for videos/reels that don't have media_url
+        // Fetch thumbnail for videos/reels — prioritize thumbnail_url for video types
         const normalizedMedia = await Promise.all((media.data || []).map(async (m: any) => {
-          let url = m.media_url || m.thumbnail_url || null;
-          if (!url && (m.media_type === 'VIDEO' || m.media_type === 'REEL')) {
+          const isVideo = m.media_type === 'VIDEO' || m.media_type === 'REEL';
+          let url = isVideo ? (m.thumbnail_url || m.media_url || null) : (m.media_url || m.thumbnail_url || null);
+          if (!url && isVideo) {
             try {
               const videoRes = await fetch(`${fbBase}/${m.id}?fields=thumbnail_url,media_url&access_token=${token}`);
               const videoData = await videoRes.json() as any;
@@ -155,11 +156,12 @@ app.get('/api/instagram/profile', async (_req, res) => {
       return;
     }
 
-    // Normalize media data + fetch thumbnails for videos
+    // Normalize media data + fetch thumbnails for videos — prioritize thumbnail_url for video types
     const igBase2 = 'https://graph.instagram.com/v21.0';
     const normalizedMedia = await Promise.all((media.data || []).map(async (m: any) => {
-      let url = m.media_url || m.thumbnail_url || null;
-      if (!url && (m.media_type === 'VIDEO' || m.media_type === 'REEL' || m.media_type === 'CAROUSEL_ALBUM')) {
+      const isVideo = m.media_type === 'VIDEO' || m.media_type === 'REEL';
+      let url = isVideo ? (m.thumbnail_url || m.media_url || null) : (m.media_url || m.thumbnail_url || null);
+      if (!url && (isVideo || m.media_type === 'CAROUSEL_ALBUM')) {
         try {
           const extraRes = await fetch(`${igBase2}/${m.id}?fields=thumbnail_url,media_url&access_token=${token}`);
           const extraData = await extraRes.json() as any;

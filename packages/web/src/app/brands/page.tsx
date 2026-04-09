@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { api } from '../../lib/api';
 import { Plus, Trash2, Pencil, Star, X, Loader2, Palette, Upload, Image as ImageIcon } from 'lucide-react';
+import { useConfirm } from '@/components/ConfirmModal';
 
 interface Brand {
   id: string;
@@ -48,6 +49,7 @@ const EMPTY_BRAND: Partial<Brand> = {
 };
 
 export default function BrandsPage() {
+  const confirm = useConfirm();
   const [brands, setBrands] = useState<Brand[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -138,7 +140,7 @@ export default function BrandsPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm('Deletar este brand?')) return;
+    if (!await confirm({ message: 'Deletar este brand?' })) return;
     try {
       await api.deleteBrand(id);
       setBrands((prev) => prev.filter((b) => b.id !== id));

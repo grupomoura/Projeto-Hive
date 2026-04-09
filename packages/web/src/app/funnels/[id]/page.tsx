@@ -11,6 +11,8 @@ import {
   LayoutGrid, Workflow,
 } from 'lucide-react';
 
+import { useConfirm } from '@/components/ConfirmModal';
+
 const FunnelFlowView = lazy(() => import('./FunnelFlowView'));
 
 const STEP_TYPE_LABELS: Record<string, string> = {
@@ -50,6 +52,7 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; label: string }>
 };
 
 export default function FunnelBuilderPage() {
+  const confirm = useConfirm();
   const params = useParams();
   const router = useRouter();
   const funnelId = params.id as string;
@@ -113,7 +116,7 @@ export default function FunnelBuilderPage() {
   }
 
   async function handleDeleteStage(stageId: string) {
-    if (!confirm('Excluir esta etapa e todos seus passos?')) return;
+    if (!await confirm({ message: 'Excluir esta etapa e todos seus passos?' })) return;
     try {
       await api.deleteStage(funnelId, stageId);
       setFunnel((f: any) => ({ ...f, stages: f.stages.filter((s: any) => s.id !== stageId) }));
