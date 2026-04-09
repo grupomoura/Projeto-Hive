@@ -572,15 +572,6 @@ export default function VisualEditorPage() {
             </p>
           </div>
 
-          {/* Caption */}
-          <div className="card p-5 space-y-3">
-            <textarea value={caption} onChange={(e) => setCaption(e.target.value)} rows={3} maxLength={2200} placeholder="Legenda do post..." className="input-field resize-none text-sm" />
-            <div className="grid grid-cols-2 gap-3">
-              <input value={hashtags} onChange={(e) => setHashtags(e.target.value)} placeholder="hashtags (virgula)" className="input-field text-sm" />
-              <input type="datetime-local" value={scheduledAt} onChange={(e) => setScheduledAt(e.target.value)} className="input-field text-sm" />
-            </div>
-          </div>
-
           {message && (
             <div className={`px-4 py-3 rounded-btn border text-sm ${messageType === 'success' ? 'bg-emerald-50 border-emerald-200 text-status-published' : 'bg-red-50 border-red-200 text-status-failed'}`}>
               {message}
@@ -787,6 +778,24 @@ export default function VisualEditorPage() {
             {active.showIndicators && (
               <p className="text-[10px] text-text-muted">Slide {active.slideNumber} de {slides.length} — ajustado automaticamente ao renderizar</p>
             )}
+          </div>
+
+          {/* Publicacao */}
+          <div className="card p-4 space-y-3">
+            <h3 className="text-[11px] font-bold text-text-muted uppercase tracking-wider">Publicacao</h3>
+            <div>
+              <label className="text-[10px] font-semibold text-text-muted uppercase mb-0.5 block">Legenda</label>
+              <textarea value={caption} onChange={(e) => setCaption(e.target.value)} rows={4} maxLength={2200} placeholder="Legenda do post..." className="input-field resize-none text-xs" />
+              <span className="text-[9px] text-text-muted block text-right mt-0.5">{caption.length}/2200</span>
+            </div>
+            <div>
+              <label className="text-[10px] font-semibold text-text-muted uppercase mb-0.5 block">Hashtags</label>
+              <input value={hashtags} onChange={(e) => setHashtags(e.target.value)} placeholder="ia, design, tutorial (virgula)" className="input-field text-xs" />
+            </div>
+            <div>
+              <label className="text-[10px] font-semibold text-text-muted uppercase mb-0.5 block">Agendar para</label>
+              <input type="datetime-local" value={scheduledAt} onChange={(e) => setScheduledAt(e.target.value)} className="input-field text-xs" />
+            </div>
           </div>
         </div>
       </div>
