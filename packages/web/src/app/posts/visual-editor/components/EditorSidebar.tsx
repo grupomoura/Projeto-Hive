@@ -560,20 +560,48 @@ export function EditorSidebar({
           {/* Background pattern */}
           <div>
             <span className={labelClass}>PADRAO SOBRE O FUNDO</span>
-            <div className="flex flex-col gap-1 mt-1.5">
+            <select
+              className="input-field text-xs w-full mt-1.5"
+              value={active.slideBgPattern}
+              onChange={(e) => updateActive({ slideBgPattern: e.target.value as any })}
+            >
               {BG_PATTERNS.map((p) => (
-                <button
-                  key={p.id}
-                  onClick={() => updateActive({ slideBgPattern: p.id })}
-                  className={`text-left text-xs py-1.5 px-2.5 rounded border transition-all ${
-                    active.slideBgPattern === p.id ? btnActive : btnInactive
-                  }`}
-                >
-                  {p.label}
-                </button>
+                <option key={p.id} value={p.id}>{p.label}</option>
               ))}
-            </div>
+            </select>
           </div>
+
+          {active.slideBgPattern !== 'none' && (
+            <>
+              {/* Pattern size */}
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className={labelClass}>TAMANHO DO PADRAO</span>
+                  <span className="text-[10px] text-primary font-semibold">{active.slideBgPatternSize || 40}</span>
+                </div>
+                <input
+                  type="range" min={10} max={200} step={5}
+                  value={active.slideBgPatternSize || 40}
+                  onChange={(e) => updateActive({ slideBgPatternSize: Number(e.target.value) })}
+                  className="range-slider w-full"
+                />
+              </div>
+
+              {/* Pattern opacity */}
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className={labelClass}>OPACIDADE DO PADRAO</span>
+                  <span className="text-[10px] text-primary font-semibold">{active.slideBgPatternOpacity || 15}</span>
+                </div>
+                <input
+                  type="range" min={1} max={100} step={1}
+                  value={active.slideBgPatternOpacity || 15}
+                  onChange={(e) => updateActive({ slideBgPatternOpacity: Number(e.target.value) })}
+                  className="range-slider w-full"
+                />
+              </div>
+            </>
+          )}
         </CollapsibleSection>
 
         {/* ── 5. Titulo & Subtitulo ── */}

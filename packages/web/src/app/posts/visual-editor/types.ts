@@ -8,7 +8,7 @@ export type Position = 'top-left' | 'top-center' | 'top-right' | 'middle-left' |
 
 export type OverlayStyle = 'base' | 'gradient' | 'vignette';
 
-export type BgPattern = 'none' | 'grid' | 'dots' | 'h-lines' | 'd-lines' | 'checkerboard';
+export type BgPattern = 'none' | 'grid' | 'dots' | 'h-lines' | 'v-lines' | 'd-lines' | 'd-lines-rev' | 'checkerboard' | 'triangles' | 'hexagons' | 'crosses' | 'zigzag' | 'waves' | 'diamonds' | 'stars';
 
 export type CornerIcon = 'none' | 'bookmark' | 'arrow' | 'heart' | 'share' | 'chat' | 'sparkle';
 
@@ -43,6 +43,8 @@ export interface SlideState {
   // Slide background (behind image)
   slideBgColor: string;
   slideBgPattern: BgPattern;
+  slideBgPatternSize: number;
+  slideBgPatternOpacity: number;
 
   // Content fields
   label: string;
@@ -244,11 +246,20 @@ export const OVERLAY_STYLES: { id: OverlayStyle; label: string }[] = [
 
 export const BG_PATTERNS: { id: BgPattern; label: string }[] = [
   { id: 'none', label: 'Nenhum' },
-  { id: 'grid', label: 'Grade (quadriculado)' },
+  { id: 'grid', label: 'Grade' },
   { id: 'dots', label: 'Bolinhas' },
   { id: 'h-lines', label: 'Linhas horizontais' },
-  { id: 'd-lines', label: 'Linhas diagonais' },
-  { id: 'checkerboard', label: 'Xadrez diagonal' },
+  { id: 'v-lines', label: 'Linhas verticais' },
+  { id: 'd-lines', label: 'Diagonais /' },
+  { id: 'd-lines-rev', label: 'Diagonais \\' },
+  { id: 'checkerboard', label: 'Xadrez' },
+  { id: 'triangles', label: 'Triangulos' },
+  { id: 'hexagons', label: 'Hexagonos' },
+  { id: 'crosses', label: 'Cruzes +' },
+  { id: 'zigzag', label: 'Zigzag' },
+  { id: 'waves', label: 'Ondas' },
+  { id: 'diamonds', label: 'Losangos' },
+  { id: 'stars', label: 'Estrelas' },
 ];
 
 export const CORNER_ICONS: { id: CornerIcon; label: string; svg: string }[] = [
@@ -284,6 +295,8 @@ export function emptySlide(idx: number, tpl: TemplateId = idx === 0 ? 'hero' : '
     overlayStyle: 'base',
     slideBgColor: '#000000',
     slideBgPattern: 'none',
+    slideBgPatternSize: 40,
+    slideBgPatternOpacity: 15,
     label: tpl === 'content' || tpl === 'list' ? `Passo ${idx}` : tpl === 'cta' ? 'Proximo passo' : '',
     title: idx === 0 ? 'Titulo do carrossel' : `Titulo do slide ${idx + 1}`,
     subtitle: idx === 0 ? 'Subtitulo que complementa' : 'Subtitulo do slide',

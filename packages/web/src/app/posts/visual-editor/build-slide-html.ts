@@ -26,19 +26,54 @@ function buildOverlayCss(style: OverlayStyle, opacity: number): string {
   }
 }
 
-function buildPatternSvg(pattern: BgPattern, color: string): string {
-  const c = color + '20'; // low opacity
+function buildPatternSvg(pattern: BgPattern, color: string, size: number, opacity: number): string {
+  // Convert opacity from 0-100 to hex (0-255)
+  const hexOpacity = Math.round((opacity / 100) * 255).toString(16).padStart(2, '0');
+  const c = color + hexOpacity;
+  const sz = size || 40;
   switch (pattern) {
     case 'grid':
-      return `<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="g" width="60" height="60" patternUnits="userSpaceOnUse"><path d="M 60 0 L 0 0 0 60" fill="none" stroke="${c}" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(#g)"/></svg>`;
+      return `<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="g" width="${sz}" height="${sz}" patternUnits="userSpaceOnUse"><path d="M ${sz} 0 L 0 0 0 ${sz}" fill="none" stroke="${c}" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(#g)"/></svg>`;
     case 'dots':
-      return `<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="d" width="30" height="30" patternUnits="userSpaceOnUse"><circle cx="15" cy="15" r="2" fill="${c}"/></pattern></defs><rect width="100%" height="100%" fill="url(#d)"/></svg>`;
+      return `<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="d" width="${sz}" height="${sz}" patternUnits="userSpaceOnUse"><circle cx="${sz/2}" cy="${sz/2}" r="${Math.max(2, sz/10)}" fill="${c}"/></pattern></defs><rect width="100%" height="100%" fill="url(#d)"/></svg>`;
     case 'h-lines':
-      return `<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="h" width="10" height="20" patternUnits="userSpaceOnUse"><line x1="0" y1="10" x2="10" y2="10" stroke="${c}" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(#h)"/></svg>`;
+      return `<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="h" width="${sz}" height="${sz}" patternUnits="userSpaceOnUse"><line x1="0" y1="${sz/2}" x2="${sz}" y2="${sz/2}" stroke="${c}" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(#h)"/></svg>`;
+    case 'v-lines':
+      return `<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="vl" width="${sz}" height="${sz}" patternUnits="userSpaceOnUse"><line x1="${sz/2}" y1="0" x2="${sz/2}" y2="${sz}" stroke="${c}" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(#vl)"/></svg>`;
     case 'd-lines':
-      return `<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="dl" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M0 20L20 0" stroke="${c}" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(#dl)"/></svg>`;
+      return `<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="dl" width="${sz}" height="${sz}" patternUnits="userSpaceOnUse"><path d="M0 ${sz}L${sz} 0" stroke="${c}" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(#dl)"/></svg>`;
+    case 'd-lines-rev':
+      return `<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="dlr" width="${sz}" height="${sz}" patternUnits="userSpaceOnUse"><path d="M0 0L${sz} ${sz}" stroke="${c}" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(#dlr)"/></svg>`;
     case 'checkerboard':
-      return `<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="cb" width="40" height="40" patternUnits="userSpaceOnUse"><rect width="20" height="20" fill="${c}"/><rect x="20" y="20" width="20" height="20" fill="${c}"/></pattern></defs><rect width="100%" height="100%" fill="url(#cb)"/></svg>`;
+      return `<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="cb" width="${sz}" height="${sz}" patternUnits="userSpaceOnUse"><rect width="${sz/2}" height="${sz/2}" fill="${c}"/><rect x="${sz/2}" y="${sz/2}" width="${sz/2}" height="${sz/2}" fill="${c}"/></pattern></defs><rect width="100%" height="100%" fill="url(#cb)"/></svg>`;
+    case 'triangles':
+      return `<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="tri" width="${sz}" height="${sz}" patternUnits="userSpaceOnUse"><path d="M${sz/2} 0L${sz} ${sz}L0 ${sz}Z" fill="none" stroke="${c}" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(#tri)"/></svg>`;
+    case 'hexagons': {
+      const h = sz * 0.866;
+      return `<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="hex" width="${sz*1.5}" height="${h*2}" patternUnits="userSpaceOnUse"><path d="M${sz*0.5},0 L${sz},${h*0.5} L${sz},${h*1.5} L${sz*0.5},${h*2} L0,${h*1.5} L0,${h*0.5}Z" fill="none" stroke="${c}" stroke-width="1"/><path d="M${sz*1.5},${h} L${sz*1.5+sz*0.5},${h*0.5}" fill="none" stroke="${c}" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(#hex)"/></svg>`;
+    }
+    case 'crosses':
+      return `<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="cr" width="${sz}" height="${sz}" patternUnits="userSpaceOnUse"><line x1="${sz/2}" y1="${sz*0.2}" x2="${sz/2}" y2="${sz*0.8}" stroke="${c}" stroke-width="1.5"/><line x1="${sz*0.2}" y1="${sz/2}" x2="${sz*0.8}" y2="${sz/2}" stroke="${c}" stroke-width="1.5"/></pattern></defs><rect width="100%" height="100%" fill="url(#cr)"/></svg>`;
+    case 'zigzag':
+      return `<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="zz" width="${sz}" height="${sz}" patternUnits="userSpaceOnUse"><path d="M0 ${sz*0.75}L${sz/4} ${sz*0.25}L${sz/2} ${sz*0.75}L${sz*0.75} ${sz*0.25}L${sz} ${sz*0.75}" fill="none" stroke="${c}" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(#zz)"/></svg>`;
+    case 'waves':
+      return `<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="wv" width="${sz}" height="${sz}" patternUnits="userSpaceOnUse"><path d="M0 ${sz/2}Q${sz/4} 0 ${sz/2} ${sz/2}Q${sz*0.75} ${sz} ${sz} ${sz/2}" fill="none" stroke="${c}" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(#wv)"/></svg>`;
+    case 'diamonds':
+      return `<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="dm" width="${sz}" height="${sz}" patternUnits="userSpaceOnUse"><path d="M${sz/2} 0L${sz} ${sz/2}L${sz/2} ${sz}L0 ${sz/2}Z" fill="none" stroke="${c}" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(#dm)"/></svg>`;
+    case 'stars': {
+      const r = sz * 0.35;
+      const ri = r * 0.4;
+      const cx = sz / 2, cy = sz / 2;
+      let d = '';
+      for (let i = 0; i < 5; i++) {
+        const aOuter = (i * 72 - 90) * Math.PI / 180;
+        const aInner = ((i * 72 + 36) - 90) * Math.PI / 180;
+        d += `${i === 0 ? 'M' : 'L'}${cx + r * Math.cos(aOuter)},${cy + r * Math.sin(aOuter)}`;
+        d += `L${cx + ri * Math.cos(aInner)},${cy + ri * Math.sin(aInner)}`;
+      }
+      d += 'Z';
+      return `<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="st" width="${sz}" height="${sz}" patternUnits="userSpaceOnUse"><path d="${d}" fill="none" stroke="${c}" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(#st)"/></svg>`;
+    }
     default:
       return '';
   }
@@ -173,7 +208,7 @@ export function buildSlideHtml(
   // ── Pattern overlay ──
   let patternHtml = '';
   if (s.slideBgPattern && s.slideBgPattern !== 'none') {
-    const svg = buildPatternSvg(s.slideBgPattern, s.titleColor);
+    const svg = buildPatternSvg(s.slideBgPattern, s.titleColor, s.slideBgPatternSize || 40, s.slideBgPatternOpacity || 15);
     if (svg) {
       patternHtml = `<div style="position:absolute;inset:0;pointer-events:none;">${svg}</div>`;
     }
