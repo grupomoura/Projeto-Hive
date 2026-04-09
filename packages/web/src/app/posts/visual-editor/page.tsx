@@ -174,21 +174,19 @@ export default function VisualEditorPage() {
     const isInfiniteRight = prevSlide?.infiniteCarousel && prevSlide?.backgroundUrl;
 
     if (isInfiniteLeft) {
-      const zoom = slide.backgroundZoom ?? 100;
       return {
         url: slide.backgroundUrl,
         posX: 'left', posY: `${slide.backgroundY ?? 50}%`,
-        size: `${zoom * 2}% auto`,
+        size: '200% auto',
         opacity: (slide.backgroundOpacity ?? 100) / 100,
         flip: slide.backgroundFlipH || false,
       };
     }
     if (isInfiniteRight) {
-      const zoom = prevSlide!.backgroundZoom ?? 100;
       return {
         url: prevSlide!.backgroundUrl,
         posX: 'right', posY: `${prevSlide!.backgroundY ?? 50}%`,
-        size: `${zoom * 2}% auto`,
+        size: '200% auto',
         opacity: (prevSlide!.backgroundOpacity ?? 100) / 100,
         flip: prevSlide!.backgroundFlipH || false,
       };
