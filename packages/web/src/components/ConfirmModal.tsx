@@ -50,7 +50,7 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
             onClick={() => handleClose(false)}
           />
           {/* Modal */}
-          <div className="relative bg-bg-secondary border border-border rounded-xl shadow-2xl p-6 max-w-sm w-full mx-4 animate-fade-in">
+          <div className="relative bg-[var(--bg-card)] border border-border rounded-xl shadow-2xl p-6 max-w-sm w-full mx-4 animate-fade-in">
             <div className="flex items-start gap-3">
               <div className={`p-2 rounded-lg ${state.opts.danger !== false ? 'bg-red-500/10' : 'bg-primary/10'}`}>
                 <AlertTriangle className={`w-5 h-5 ${state.opts.danger !== false ? 'text-status-failed' : 'text-primary'}`} />
