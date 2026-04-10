@@ -245,8 +245,8 @@ export default function VisualEditorPage() {
       // Background is baked into the HTML — no separate backgroundUrl needed
       aspectRatio,
       overlayOpacity: 0,
-      brandId: brandId || undefined,
-      applyBrand: !!brandId,
+      // Don't pass brandId to server — badge/logo are already in the HTML via buildSlideHtml
+      // Passing brandId causes server to add a duplicate badge
     });
     return result.imageUrl;
   }
