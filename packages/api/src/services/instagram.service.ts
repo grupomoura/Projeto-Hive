@@ -170,13 +170,18 @@ async function publishContainer(containerId: string, token: string, igUserId: st
 async function createChildContainer(publicUrl: string, token: string, igUserId: string): Promise<string> {
   const base = getGraphBase(token);
   const userPath = resolveUserIdForToken(token, igUserId);
+  const params: Record<string, string> = {
+    image_url: publicUrl,
+    is_carousel_item: 'true',
+    access_token: token,
+  };
+  // Instagram Login API (IGAA) requires explicit media_type for carousel items
+  if (!token.startsWith('EAA')) {
+    params.media_type = 'IMAGE';
+  }
   const res = await fetch(`${base}/${userPath}/media`, {
     method: 'POST',
-    body: new URLSearchParams({
-      image_url: publicUrl,
-      is_carousel_item: 'true',
-      access_token: token,
-    }),
+    body: new URLSearchParams(params),
   });
   const data = (await res.json()) as any;
 
