@@ -142,17 +142,14 @@ export async function createMixedCarousel(input: CreateMixedCarouselInput) {
       showCTA: false, ctaText: '', wordHighlights: {}, refinePrompt: '',
     },
     // Template slides (editable text)
-    // backgroundUrl = cover image (not the template-rendered image which has text baked in)
-    // renderedUrl = template-rendered image (preserved for preview & export)
     ...input.slides.map((slide, i) => ({
       id: `slide${i + 2}`,
       template: templateToEditor[slide.template || 'bold-gradient'] || 'content',
-      backgroundUrl: images[0].imageUrl,
-      renderedUrl: images[i + 1]?.imageUrl || '',
+      backgroundUrl: images[i + 1]?.imageUrl || '',
       backgroundPrompt: '',
       backgroundX: 50, backgroundY: 50, backgroundZoom: 100,
       backgroundOpacity: 100, backgroundFlipH: false, infiniteCarousel: false,
-      overlayOpacity: 0.5, overlayStyle: 'gradient' as const,
+      overlayOpacity: 0, overlayStyle: 'base',
       slideBgColor: '#000000', slideBgPattern: 'none',
       slideBgPatternSize: 40, slideBgPatternOpacity: 15,
       label: i === input.slides.length - 1 ? '' : `Passo ${i + 1}`,
@@ -165,7 +162,7 @@ export async function createMixedCarousel(input: CreateMixedCarouselInput) {
       subtitleFontFamily: 'Inter', subtitleFontWeight: 400,
       subtitleColor: '#ffffff', subtitleFontSize: 28,
       subtitleLetterSpacing: 0, subtitleLineHeight: 1.4,
-      globalScale: 100, glassEffect: true,
+      globalScale: 100, glassEffect: false,
       cornerTopLeft: '', cornerTopRight: '', cornerBottomLeft: '', cornerBottomRight: '',
       cornerTopLeftEnabled: true, cornerTopRightEnabled: true,
       cornerBottomLeftEnabled: true, cornerBottomRightEnabled: true,
