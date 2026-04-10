@@ -317,6 +317,8 @@ export default function VisualEditorPage() {
         if (scheduledAt) {
           updatePayload.scheduledAt = new Date(scheduledAt).toISOString();
           updatePayload.status = 'SCHEDULED';
+        } else {
+          updatePayload.status = 'DRAFT';
         }
         await api.updatePost(currentPostId, updatePayload);
         setMessage(scheduledAt ? 'Post agendado!' : 'Post salvo!');

@@ -149,8 +149,10 @@ export async function updatePost(req: AuthRequest, res: Response) {
     const existing = await prisma.post.findFirst({ where: { id, userId } });
     if (!existing) { res.status(404).json({ success: false, error: 'Post not found' }); return; }
 
-    const { scheduledAt, images, ...otherData } = req.body;
+    const { scheduledAt, images, mediaType, ...otherData } = req.body;
     const updateData: Record<string, unknown> = { ...otherData };
+    // mediaType is a frontend field, not a Prisma column — excluded above
+    console.log(`[updatePost] Post ${id}: images=${images?.length || 0}, hasEditorState=${!!otherData.editorState}, imageUrl=${!!otherData.imageUrl}`);
 
     // Handle rescheduling
     if (scheduledAt !== undefined) {
@@ -183,7 +185,7 @@ export async function updatePost(req: AuthRequest, res: Response) {
         })),
       });
       updateData.isCarousel = true;
-      if (!updateData.imageUrl) updateData.imageUrl = images[0].imageUrl;
+      updateData.imageUrl = images[0].imageUrl;
     }
 
     await prisma.post.update({ where: { id }, data: updateData });
