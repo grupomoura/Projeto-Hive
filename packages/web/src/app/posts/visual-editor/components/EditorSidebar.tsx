@@ -1189,7 +1189,7 @@ export function EditorSidebar({
             <input
               type="range"
               min={10}
-              max={40}
+              max={80}
               value={globalStyle.cornerFontSize}
               onChange={(e) => setGS({ cornerFontSize: Number(e.target.value) })}
               className="w-full mt-1 accent-primary"
