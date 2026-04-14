@@ -281,14 +281,20 @@ export default function VisualEditorPage() {
     setRenderingAll(false);
   }
 
-  function triggerDownload(url: string, filename: string) {
+  async function fetchAsBlob(url: string): Promise<Blob> {
+    const resp = await fetch(url);
+    return resp.blob();
+  }
+
+  function saveBlobAsFile(blob: Blob, filename: string) {
+    const blobUrl = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
+    a.href = blobUrl;
     a.download = filename;
-    a.target = '_blank';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
+    URL.revokeObjectURL(blobUrl);
   }
 
   async function handleDownloadSlide() {
@@ -301,7 +307,8 @@ export default function VisualEditorPage() {
       if (!slides[activeIdx].renderedUrl) {
         setSlides((prev) => prev.map((s, i) => i === activeIdx ? { ...s, renderedUrl: url } : s));
       }
-      triggerDownload(url, `slide-${activeIdx + 1}.png`);
+      const blob = await fetchAsBlob(url);
+      saveBlobAsFile(blob, `slide-${activeIdx + 1}.png`);
       setMessage('Slide baixado!');
       setMessageType('success');
     } catch (e: any) { setMessage(e.message); setMessageType('error'); }
@@ -312,6 +319,8 @@ export default function VisualEditorPage() {
     setRenderingAll(true);
     setMessage('');
     try {
+      const JSZip = (await import('jszip')).default;
+      const zip = new JSZip();
       const total = slides.length;
       const allSlides = slides.map((s, i) => ({ ...s, slideNumber: i + 1, totalSlides: total }));
       const updated: SlideState[] = [];
@@ -319,16 +328,14 @@ export default function VisualEditorPage() {
         setMessage(`Renderizando slide ${i + 1} de ${total}...`);
         const url = allSlides[i].renderedUrl || await renderSlide(allSlides[i], i, allSlides);
         updated.push({ ...allSlides[i], renderedUrl: url });
+        const blob = await fetchAsBlob(url);
+        zip.file(`slide-${i + 1}.png`, blob);
       }
       setSlides(updated);
-      // Download each with small delay so browser handles multiple downloads
-      for (let i = 0; i < updated.length; i++) {
-        if (updated[i].renderedUrl) {
-          triggerDownload(updated[i].renderedUrl!, `slide-${i + 1}.png`);
-          await new Promise((r) => setTimeout(r, 300));
-        }
-      }
-      setMessage(`${updated.length} slides baixados!`);
+      setMessage('Compactando ZIP...');
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      saveBlobAsFile(zipBlob, 'carrossel.zip');
+      setMessage(`${updated.length} slides baixados como ZIP!`);
       setMessageType('success');
     } catch (e: any) { setMessage(e.message); setMessageType('error'); }
     setRenderingAll(false);
