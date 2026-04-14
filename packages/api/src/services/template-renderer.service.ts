@@ -3,6 +3,44 @@ import { uploadImage } from './storage.service';
 
 const RENDERER_URL = process.env.RENDERER_URL || 'http://renderer:3003';
 
+/**
+ * Replace all image URLs in HTML (img src and background-image url()) with
+ * base64 data URIs so the Puppeteer renderer can display them without needing
+ * network access to MinIO or external hosts.
+ */
+async function inlineHtmlImages(html: string): Promise<string> {
+  const urls = new Set<string>();
+  // Match src="..." (img tags)
+  for (const m of html.matchAll(/src="([^"]+)"/g)) {
+    if (m[1] && !m[1].startsWith('data:') && !m[1].startsWith('http://cdn') && !m[1].startsWith('https://cdn') && !m[1].startsWith('https://fonts')) urls.add(m[1]);
+  }
+  // Match url('...') (CSS background-image)
+  for (const m of html.matchAll(/url\('([^']+)'\)/g)) {
+    if (m[1] && !m[1].startsWith('data:') && !m[1].startsWith('http://cdn') && !m[1].startsWith('https://cdn') && !m[1].startsWith('https://fonts')) urls.add(m[1]);
+  }
+  if (urls.size === 0) return html;
+
+  const cache = new Map<string, string>();
+  await Promise.all([...urls].map(async (url) => {
+    try {
+      const resp = await fetch(url, { signal: AbortSignal.timeout(8000) });
+      if (!resp.ok) return;
+      const buf = Buffer.from(await resp.arrayBuffer());
+      const ct = resp.headers.get('content-type') || 'image/png';
+      cache.set(url, `data:${ct};base64,${buf.toString('base64')}`);
+    } catch {
+      // skip — Puppeteer will try to load it directly
+    }
+  }));
+
+  let result = html;
+  for (const [orig, b64] of cache) {
+    // Use split+join for global replace without regex escaping issues
+    result = result.split(orig).join(b64);
+  }
+  return result;
+}
+
 function getSize(aspectRatio: string): { width: number; height: number } {
   switch (aspectRatio) {
     case '9:16': return { width: 1080, height: 1920 };
@@ -30,10 +68,13 @@ export async function renderTemplateToImage(input: TemplateInput): Promise<{ ima
 }
 
 export async function renderHtmlToImage(html: string, width = 1080, height = 1080): Promise<{ imageUrl: string }> {
+  // Convert image URLs to base64 so Puppeteer can render them without network access
+  const inlinedHtml = await inlineHtmlImages(html);
+
   const res = await fetch(`${RENDERER_URL}/render`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ html, width, height }),
+    body: JSON.stringify({ html: inlinedHtml, width, height }),
   });
 
   const data = await res.json() as any;

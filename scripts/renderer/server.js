@@ -2,7 +2,7 @@ const express = require('express');
 const puppeteer = require('puppeteer-core');
 
 const app = express();
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '50mb' }));
 
 let browser = null;
 
